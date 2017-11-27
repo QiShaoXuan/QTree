@@ -89,3 +89,5 @@ btn.addEventListener('click', function () {
   data.level_1.c[0] = num
   // console.log(data.level_1.b)
 })
+
+cosnole.log('sdkfj')
