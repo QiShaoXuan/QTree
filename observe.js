@@ -7,13 +7,19 @@ class QObserve {
     this.observe(obj)
   }
 
-  observe(obj) {
-    if(Object.prototype.toString.call(obj) === '[object Array]'){
-      this.overrideArrayProto(obj)
+  observe(obj, path) {
+    if (Object.prototype.toString.call(obj) === '[object Array]') {
+      this.overrideArrayProto(obj, path)
     }
 
     Object.keys(obj).forEach((key, i) => {
       let oldVal = obj[key];
+      let pathArr = path && path.slice(0);
+      if (pathArr) {
+        pathArr.push(key)
+      } else {
+        pathArr = [key]
+      }
       Object.defineProperty(obj, key, {
         get: () => {
           return oldVal;
@@ -21,20 +27,20 @@ class QObserve {
         set: ((newVal) => {
           if (oldVal !== newVal) {
             if (Object.prototype.toString.call(newVal) === '[object Object]' || Object.prototype.toString.call(newVal) === '[object Array]') {
-              this.observe(newVal)
+              this.observe(newVal, pathArr)
             }
-            this._callback(newVal, oldVal);
+            this._callback(newVal, oldVal, pathArr);
             oldVal = newVal
           }
         }).bind(this)
       })
 
       if (Object.prototype.toString.call(obj[key]) === '[object Object]' || Object.prototype.toString.call(obj[key]) === '[object Array]') {
-        this.observe(obj[key])
+        this.observe(obj[key], pathArr)
       }
     }, this)
   }
-  overrideArrayProto(array) {
+  overrideArrayProto(array, path) {
     const overrideMethods = ['push', 'pop', 'shift', 'unshift', 'splice', 'sort', 'reverse'];
     let originProto = Array.prototype;
     let overrideProto = Object.create(Array.prototype);
@@ -43,15 +49,15 @@ class QObserve {
     overrideMethods.forEach((v, i) => {
       var method = v;
 
-      Object.defineProperty(overrideProto,method,{
-        value(){
+      Object.defineProperty(overrideProto, method, {
+        value() {
           let oldArray = this.slice(0);
           let arg = Array.prototype.slice.apply(arguments);
 
-          let result = originProto[method].apply(this,arg);
+          let result = originProto[method].apply(this, arg);
 
-          self.observe(this);
-          self._callback(this, oldArray);
+          self.observe(this, path);
+          self._callback(this, oldArray, path);
 
           return result
         },
@@ -73,21 +79,21 @@ var data = {
     c: [1, 2, 3],
     level_2: {
       d: 90,
-      e:1
+      e: 1
     }
   }
 }
 
-var fn = function (newVal, oldVal) {
-  console.log(newVal, oldVal)
+var fn = function (newVal, oldVal,path) {
+  console.log(newVal, oldVal,path)
 }
 
 var o = new QObserve(data, fn)
 var btn = document.querySelector('#btn')
 btn.addEventListener('click', function () {
   let num = Math.random()
-  data.level_1.c[0] = num
+  data.level_1.c.push(num)
+  // data.level_1.c[0] = num
   // console.log(data.level_1.b)
 })
 
-cosnole.log('sdkfj')
