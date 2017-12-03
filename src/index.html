@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>QTree</title>
+  <link rel="stylesheet" href="./styles/asset/bootstrap.min.css">
+  <link rel="stylesheet" href="./styles/QTree.css">
+  <!--
+                         ::
+                        :;J7, :,                        ::;7:
+                        ,ivYi, ,                       ;LLLFS:
+                        :iv7Yi                       :7ri;j5PL
+                       ,:ivYLvr                    ,ivrrirrY2X,
+                       :;r@Wwz.7r:                :ivu@kexianli.
+                      :iL7::,:::iiirii:ii;::::,,irvF7rvvLujL7ur
+                     ri::,:,::i:iiiiiii:i:irrv177JX7rYXqZEkvv17
+                  ;i:, , ::::iirrririi:i:::iiir2XXvii;L8OGJr71i
+                :,, ,,:   ,::ir@mingyi.irii:i:::j1jri7ZBOS7ivv,
+                   ,::,    ::rv77iiiriii:iii:i::,rvLq@huhao.Li
+               ,,      ,, ,:ir7ir::,:::i;ir:::i:i::rSGGYri712:
+             :::  ,v7r:: ::rrv77:, ,, ,:i7rrii:::::, ir7ri7Lri
+            ,     2OBBOi,iiir;r::        ,irriiii::,, ,iv7Luur:
+          ,,     i78MBBi,:,:::,:,  :7FSL: ,iriii:::i::,,:rLqXv::
+          :      iuMMP: :,:::,:ii;2GY7OBB0viiii:i:iii:i:::iJqL;::
+         ,     ::::i   ,,,,, ::LuBBu BBBBBErii:i:i:i:i:i:i:r77ii
+        ,       :       , ,,:::rruBZ1MBBqi, :,,,:::,::::::iiriri:
+       ,               ,,,,::::i:  @arqiao.       ,:,, ,:::ii;i7:
+      :,       rjujLYLi   ,,:::::,:::::::::,,   ,:i,:,,,,,::i:iii
+      ::      BBBBBBBBB0,    ,,::: , ,:::::: ,      ,,,, ,,:::::::
+      i,  ,  ,8BMMBBBBBBi     ,,:,,     ,,, , ,   , , , :,::ii::i::
+      :      iZMOMOMBBM2::::::::::,,,,     ,,,,,,:,,,::::i:irr:i:::,
+      i   ,,:;u0MBMOG1L:::i::::::  ,,,::,   ,,, ::::::i:i:iirii:i:i:
+      :    ,iuUuuXUkFu7i:iii:i:::, :,:,: ::::::::i:i:::::iirr7iiri::
+      :     :rk@Yizero.i:::::, ,:ii:::::::i:::::i::,::::iirrriiiri::,
+       :      5BMBBBBBBSr:,::rv2kuii:::iii::,:i:,, , ,,:,:i@petermu.,
+            , :r50EZ8MBBBBGOBBBZP7::::i::,:::::,: :,:,::i;rrririiii::
+                :jujYY7LS0ujJL7r::,::i::,::::::::::::::iirirrrrrrr:ii:
+             ,:  :@kevensun.:,:,,,::::i:i:::::,,::::::iir;ii;7v77;ii;i,
+             ,,,     ,,:,::::::i:iiiii:i::::,, ::::iiiir@xingjief.r;7:i,
+          , , ,,,:,,::::::::iiiiiiiiii:,:,:::::::::iiir;ri7vL77rrirri::
+           :,, , ::::::::i:::i:::i:i::,,,,,:,::i:i:::iir;@Secbone.ii:::
+
+  -->
+
+</head>
+
+<body>
+<div class="aaa" aaa>
+</div>
+<div class="tree-container" id="tree-container"></div>
+
+
+
+
+<div class="modal fade edit-modal" tabindex="-1" role="dialog" id="treeModal" data-backdrop="static">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+        </button>
+        <h4 class="modal-title" id="tree-modal-title"></h4>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="row">
+            <div class="form-group col-sm-12 modal-formgroup" style="padding:0 25px;">
+              <span class="faker-label">名称</span>
+              <input type="text" class="form-control" id="node-name" name="value" placeholder="请输入名称">
+            </div>
+            <div class="form-group col-sm-12 modal-formgroup" style="padding:0 25px;">
+              <span class="faker-label">所属园区</span>
+              <select id="pk_id" name="park" class="selectpicker show-tick form-control bs-select-hidden" data-live-search="true" title="选择所属园区">
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+            <div class="form-group col-sm-12 modal-formgroup" style="padding:0 25px;">
+              <span class="faker-label">总面积</span>
+              <input type="text" class="form-control" id="allArea" name="allArea" placeholder="请输入总面积">
+            </div>
+            <div class="form-group col-sm-12 modal-formgroup" style="padding:0 25px;">
+              <span class="faker-label">可租面积</span>
+              <input type="text" class="form-control" id="rentArea" name="rentArea" placeholder="请输入可租面积">
+            </div>
+
+            <div class="form-group col-sm-12 modal-formgroup tree-menu" style="padding:0 25px;">
+              <span class="faker-label">节点位置</span>
+              <div class="Qdropdown" id="treeDropdown">
+                <button id="dLabel" class="btn btn-default tree-menu-btn" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                        style="width:100%;">
+                  <span class="text">请选择姓名</span>
+                  <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dLabel" id="treeModalNodeLists">
+
+                </ul>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-info" id="tree-modal-sure">确定</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div>
+
+</body>
+<script src="scripts/asset/jquery.min.js"></script>
+<script src="scripts/asset/bootstrap.min.js"></script>
+<script src="scripts/QTree.js"></script>
+<script src="scripts/test.js"></script>
+<script>
+
+</script>
+
+</html>

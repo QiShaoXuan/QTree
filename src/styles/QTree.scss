@@ -1,0 +1,54 @@
+
+.tree-container{
+  width:80%;
+  margin:0 auto;
+  border:1px solid #ddd;
+}
+
+.QTree-branch{
+  height:30px;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  font-size: 15px;
+  color:#515151;
+
+  .empty-span{
+    width:20px;
+    height:20px;
+  }
+
+  .switch{
+    width:14px;
+    height:14px;
+    margin:0 3px;
+    background-size:cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+  }
+
+  .plus-btn{
+    background-image: url(../images/plusBtn.svg);
+  }
+  .minus-btn{
+    background-image: url(../images/minusBtn.svg);
+  }
+}
+.QTree-hide{
+  display: none;
+}
+
+//自定义
+.edit-container{
+
+  .btn{
+    cursor: pointer;
+  }
+}
+.branchCenter{
+  flex-grow: 2;
+  display: flex;
+  justify-content:space-around;
+  align-items: center;
+}
