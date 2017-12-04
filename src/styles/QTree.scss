@@ -1,10 +1,3 @@
-
-.tree-container{
-  width:80%;
-  margin:0 auto;
-  border:1px solid #ddd;
-}
-
 .QTree-branch{
   height:30px;
   display: flex;
@@ -29,10 +22,46 @@
   }
 
   .plus-btn{
-    background-image: url(../images/plusBtn.svg);
+    width:14px;
+    height:14px;
+    display: inline-block;
+    position:relative;
+  }
+  .plus-btn:after{
+    content:'';
+    height:100%;
+    width:2px;
+    background: #515151;
+    position: absolute;
+    top:0;
+    left:0;right:0;
+    margin:auto;
+  }
+  .plus-btn:before{
+    content:'';
+    width:100%;
+    height:2px;
+    background: #515151;
+    position: absolute;
+    top:0;bottom:0;
+    left:0;
+    margin:auto;
   }
   .minus-btn{
-    background-image: url(../images/minusBtn.svg);
+    width:14px;
+    height:14px;
+    display: inline-block;
+    position:relative;
+  }
+  .minus-btn:after{
+    content:'';
+    width:100%;
+    height:2px;
+    background: #515151;
+    position: absolute;
+    top:0;bottom:0;
+    left:0;
+    margin:auto;
   }
 }
 .QTree-hide{
@@ -40,8 +69,12 @@
 }
 
 //自定义
+.tree-container{
+  width:80%;
+  margin:0 auto;
+  border:1px solid #ddd;
+}
 .edit-container{
-
   .btn{
     cursor: pointer;
   }

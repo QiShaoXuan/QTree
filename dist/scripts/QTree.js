@@ -12,7 +12,6 @@ var mockData = [{ id: "32", pid: "3", index: 1, name: "叶子节点 3-2", allAre
 //            |--(class=QTree-branch , id=x)
 //            |--(class=QTree-children-container , id=children_x)
 
-
 var Qtree = function () {
   function Qtree(container, nodeData, setting) {
     _classCallCheck(this, Qtree);
@@ -320,7 +319,7 @@ var Qtree = function () {
       var changeData = {};
       //检查要更新的数据
       for (var key in editData) {
-        if (key in originData && editData[key] != originData[key]) {
+        if (tkey in originData && editData[key] != originData[key]) {
           changeData[key] = editData[key];
         }
       }

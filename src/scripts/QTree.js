@@ -25,7 +25,6 @@ let mockData = [
 //            |--(class=QTree-branch , id=x)
 //            |--(class=QTree-children-container , id=children_x)
 
-
 class Qtree {
   constructor(container, nodeData, setting) {
     let originSetting = {
@@ -115,7 +114,6 @@ class Qtree {
       })
     }
   }
-
 
 // 创建树
   createTree() {
@@ -294,7 +292,7 @@ class Qtree {
     let changeData = {};
     //检查要更新的数据
     for (let key in editData) {
-      if ((key in originData) && (editData[key] != originData[key])) {
+      if ((tkey in originData) && (editData[key] != originData[key])) {
         changeData[key] = editData[key]
       }
     }
