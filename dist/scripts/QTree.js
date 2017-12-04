@@ -1,10 +1,9 @@
-"use strict";
+'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var mockData = [{ id: "32", pid: "3", index: 1, name: "叶子节点 3-2", allArea: '4', rentArea: '3' }, { id: "1", pid: "0", name: "父节点 1", allArea: '1234', rentArea: '56789123' }, { id: "112", pid: "11", name: "叶子节点 1-1-2", allArea: '1234', rentArea: '56789123' }, { id: "22", pid: "2", index: 1, name: "叶子节点 2-2", allArea: '5', rentArea: '2' }, { id: "1120", pid: "112", name: "叶子节点 1-1-2-0", allArea: '1234', rentArea: '56789123' }, { id: "12", pid: "1", name: "叶子节点 1-2", allArea: '4', rentArea: '56789123' }, { id: "13", pid: "1", name: "叶子节点 1-3", allArea: '4', rentArea: '56789123' }, { id: "2", pid: "0", index: 0, name: "父节点 2", allArea: '15', rentArea: '6' }, { id: "21", pid: "2", index: 1, name: "叶子节点 2-1", allArea: '5', rentArea: '2' }, { id: "11", pid: "1", name: "叶子节点 1-1", allArea: '1234', rentArea: '56789123' }, { id: "110", pid: "11", name: "叶子节点 1-1-0", allArea: '1234', rentArea: '56789123' }, { id: "111", pid: "11", name: "叶子节点 1-1-1", allArea: '1234', rentArea: '56789123' }, { id: "1121", pid: "112", name: "叶子节点 1-1-2-1", allArea: '1234', rentArea: '56789123' }, { id: "23", pid: "2", index: 1, name: "叶子节点 2-3", allArea: '5', rentArea: '2' }, { id: "3", pid: "0", index: 0, name: "父节点 3", allArea: '12', rentArea: '9' }, { id: "31", pid: "3", index: 1, name: "叶子节点 3-1", allArea: '4', rentArea: '3' }, { id: "1122", pid: "112", name: "叶子节点 1-1-2-2", allArea: '1234', rentArea: '56789123' }, { id: "33", pid: "3", index: 1, name: "叶子节点 3-3", allArea: '4', rentArea: '3' }];
 //    div(class=QTree-children-container , id=children_x)
 //        |
 //        |--div(class=QTree-branch-container , id=container_x)
@@ -17,13 +16,14 @@ var Qtree = function () {
     _classCallCheck(this, Qtree);
 
     var originSetting = {
-      branchFormatter: "<div class=\"QTree-branch\">\n                          <span class=\"tree-content name\" name></span>\n                          <div class=\"edit-container\"><span class=\"btn edit-btn\">\u7F16\u8F91</span></div>\n                        </div>",
+      branchFormatter: '<div class="QTree-branch">\n                          <span class="tree-content name" name></span>\n                          <div class="edit-container"><span class="btn edit-btn">\u7F16\u8F91</span></div>\n                        </div>',
       limit: 'auto',
       switchClass: '.switch',
       icon: '',
       openID: '',
       branchClickEvent: '',
-      renderData: ['name']
+      renderData: ['name'],
+      openBranch: 0
       //如果要自定义渲染的数据，需要在renderData中添加渲染的属性值，并且在branchFormatter中对应的标签内添加相应的值
 
     };if (setting) {
@@ -39,22 +39,72 @@ var Qtree = function () {
   }
 
   _createClass(Qtree, [{
-    key: "init",
+    key: 'init',
     value: function init() {
-      this.sortNodes(this.nodeData);
+      this.initData();
       this.createTree();
       this.setSwitchEvent();
     }
 
+    //初始化数据
+
+  }, {
+    key: 'initData',
+    value: function initData() {
+      //添加祖元素
+      var rootNode = { id: '0', pid: '', name: "root", open: true };
+      this.nodeData.splice(0, 0, rootNode);
+      //设置初始化时需要打开的分支
+      this.setOpenBranchArr();
+      //处理数据顺序
+      this.sortNodes(this.nodeData);
+    }
+
+    //设置初始时打开分支的化列表
+
+  }, {
+    key: 'setOpenBranchArr',
+    value: function setOpenBranchArr() {
+      var openID = Number(this.setting.openBranch);
+      //检查是否为数字且整数
+      if (!openID && Math.floor(openID) != openID) return;
+
+      var openArr = [];
+      this.findOpenBranch(openID, null, openArr);
+
+      this.setting.openBranch = openArr;
+    }
+  }, {
+    key: 'findOpenBranch',
+    value: function findOpenBranch(id, pid, arr) {
+      if (id == 0) {
+        arr.push(id);
+        return '0';
+      }
+      if (pid === '') {
+        return;
+      }
+      if (pid) {
+        var parent = this.nodeData.find(function (v) {
+          return v.id === pid;
+        });
+        arr.push(parent.id);
+        return this.findOpenBranch(id, parent.pid, arr);
+      } else {
+        var child = this.nodeData.find(function (v) {
+          return v.id == id;
+        });
+
+        arr.push(id);
+        return this.findOpenBranch(id, child.pid, arr);
+      }
+    }
     //处理数据排序
 
   }, {
-    key: "sortNodes",
+    key: 'sortNodes',
     value: function sortNodes(treejson) {
       var that = this;
-      //添加祖元素
-      var rootNode = { id: '0', pid: '', name: "root", open: true };
-      treejson.splice(0, 0, rootNode);
       generateNode(treejson);
 
       function formatTreeData(treejson) {
@@ -96,8 +146,22 @@ var Qtree = function () {
         json.child.forEach(function (v, i) {
           json.child[i].sortID = pnode + json.child[i].sortID;
           arr.push(json.child[i]);
-          if (formatJson[json.child[i].id] && json.child[i].pid != '') {
+
+          // console.log(formatJson[json.child[i].id]);
+          // if (formatJson[json.child[i].id] && json.child[i].pid != '') {
+          //   json.child[i].open = false
+          // }
+          var isOpen = that.setting.openBranch.find(function (v) {
+            return v == json.child[i].id;
+          });
+          var hasChildren = that.nodeData.find(function (v) {
+            return v.pid === json.child[i].id;
+          });
+
+          if (isOpen == undefined || hasChildren == undefined) {
             json.child[i].open = false;
+          } else {
+            json.child[i].open = true;
           }
           node(formatJson[json.child[i].id], json.child[i].sortID, arr);
         });
@@ -107,15 +171,15 @@ var Qtree = function () {
     // 创建树
 
   }, {
-    key: "createTree",
+    key: 'createTree',
     value: function createTree() {
       var that = this;
       var frag = $(document.createDocumentFragment());
       this.nodeData.forEach(function (v, i) {
         if (v.pid) {
-          frag.find("#children_" + v.pid).append(that.createBranch(v));
+          frag.find('#children_' + v.pid).append(that.createBranch(v));
           // if ('open' in v) {
-          frag.find("#container_" + v.id).append(that.createBranchContainer(v.id, v.open));
+          frag.find('#container_' + v.id).append(that.createBranchContainer(v.id, v.open));
           // }
         } else {
           frag.append(that.createBranchContainer(v.id, v.open));
@@ -128,16 +192,16 @@ var Qtree = function () {
     //  创建分支容器
 
   }, {
-    key: "createBranchContainer",
+    key: 'createBranchContainer',
     value: function createBranchContainer(pid, isopen) {
-      var container = "<div class=\"QTree-children-container " + (isopen ? '' : 'QTree-hide') + "\" id=\"children_" + pid + "\"></div>";
+      var container = '<div class="QTree-children-container ' + (isopen ? '' : 'QTree-hide') + '" id="children_' + pid + '"></div>';
       return container;
     }
 
     //创建分支
 
   }, {
-    key: "createBranch",
+    key: 'createBranch',
     value: function createBranch(branchData) {
 
       var branch = $(this.setting.branchFormatter);
@@ -155,10 +219,8 @@ var Qtree = function () {
       this.loadBranchData(branch, branchData);
 
       //2.添加开关
-      if (branchData.hasOwnProperty('open')) {
-        var switchSpan = this.createSwitch(branchData.open);
-        branch.prepend(switchSpan);
-      }
+      var switchSpan = this.createSwitch(branchData);
+      branch.prepend(switchSpan);
       //3.添加空格
       branch.prepend(emptySpan);
 
@@ -169,7 +231,7 @@ var Qtree = function () {
         branch.addClass('QTree-branch');
       }
 
-      var branchContainer = $("<div class=\"QTree-branch-container\" id=\"container_" + branchData.id + "\"></div>");
+      var branchContainer = $('<div class="QTree-branch-container" id="container_' + branchData.id + '"></div>');
       branchContainer.append(branch);
       return branchContainer;
     }
@@ -177,7 +239,7 @@ var Qtree = function () {
     //第一次加载时加载分支对应的数据
 
   }, {
-    key: "loadBranchData",
+    key: 'loadBranchData',
     value: function loadBranchData(branch, branchData) {
       var _this = this;
 
@@ -196,7 +258,7 @@ var Qtree = function () {
 
     // isShow(pid, originData) {
     //   if (pid === '') return true;
-    //   var parent = this.nodeData.find((v) => {
+    //   let parent = this.nodeData.find((v) => {
     //     return v.id == pid
     //   })
     //
@@ -210,7 +272,7 @@ var Qtree = function () {
     //判断是否有子节点
 
   }, {
-    key: "hasChildren",
+    key: 'hasChildren',
     value: function hasChildren(id) {
       var child = this.nodeData.find(function (v, i) {
         return v.pid === id;
@@ -221,19 +283,27 @@ var Qtree = function () {
     //创建开关按钮
 
   }, {
-    key: "createSwitch",
-    value: function createSwitch(open) {
-      if (open) {
-        return "<i class=\"switch minus-btn\" data-switch=\"true\"></i>";
+    key: 'createSwitch',
+    value: function createSwitch(branchData) {
+      var hasChildren = this.nodeData.find(function (v) {
+        return v.pid == branchData.id;
+      });
+      // 如果有子节点则设置开关
+      if (hasChildren != undefined) {
+        if (branchData.open) {
+          return '<i class="switch minus-btn" data-switch="true"></i>';
+        } else {
+          return '<i class="switch plus-btn" data-switch="false"></i>';
+        }
       } else {
-        return "<i class=\"switch plus-btn\" data-switch=\"false\"></i>";
+        return '<span class="empty-span"></span>';
       }
     }
 
     //根据index判断是第几层级添加空格
 
   }, {
-    key: "createEmptySpan",
+    key: 'createEmptySpan',
     value: function createEmptySpan(sortID) {
       var num = countIndex(sortID);
       var emptySpan = '';
@@ -255,37 +325,37 @@ var Qtree = function () {
     //同步视图上的数据和dom中存储的数据
 
   }, {
-    key: "syncData",
+    key: 'syncData',
     value: function syncData(id, data) {
-      var $branchDom = this.container.find("#" + id);
+      var $branchDom = this.container.find('#' + id);
       for (var i in data) {
         $branchDom.data('treeData')[i] = data[i];
       }
     }
   }, {
-    key: "onchangeBranch",
+    key: 'onchangeBranch',
     value: function onchangeBranch(id) {}
 
     //打开分支
 
   }, {
-    key: "openBranch",
+    key: 'openBranch',
     value: function openBranch(id) {
-      this.container.find("#children_" + id).removeClass('QTree-hide');
+      this.container.find('#children_' + id).removeClass('QTree-hide');
       this.syncData(id, { open: true });
     }
     //关闭分支
 
   }, {
-    key: "closeBranch",
+    key: 'closeBranch',
     value: function closeBranch(id) {
-      this.container.find("#children_" + id).addClass('QTree-hide');
+      this.container.find('#children_' + id).addClass('QTree-hide');
       this.syncData(id, { open: false });
     }
     //设置开关事件
 
   }, {
-    key: "setSwitchEvent",
+    key: 'setSwitchEvent',
     value: function setSwitchEvent() {
       var that = this;
       this.container.on('click', '.switch', function (e) {
@@ -308,10 +378,10 @@ var Qtree = function () {
     //更新分支
 
   }, {
-    key: "updateBranch",
+    key: 'updateBranch',
     value: function updateBranch(id, editData) {
       if (Object.prototype.toString.call(editData) != '[object Object]') return;
-      var $branchDom = this.container.find("#" + id);
+      var $branchDom = this.container.find('#' + id);
       if (!$branchDom.length) return;
 
       var originData = $branchDom.data('treeData');
@@ -334,7 +404,7 @@ var Qtree = function () {
     //将新的数据更新到对应dom中(更新分支用)
 
   }, {
-    key: "updateBranchData",
+    key: 'updateBranchData',
     value: function updateBranchData($branchDom, branchData) {
       var that = this;
       $branchDom.children().each(function (i, child) {
@@ -352,18 +422,18 @@ var Qtree = function () {
     //  删除分支
 
   }, {
-    key: "removeBranch",
+    key: 'removeBranch',
     value: function removeBranch(id) {
-      var $branchDom = this.container.find("#" + id);
+      var $branchDom = this.container.find('#' + id);
       if (!$branchDom.length) return;
       $branchDom.parent().remove();
     }
     //  检查分支是否有子分支，返回true或false
 
   }, {
-    key: "checkChlidren",
+    key: 'checkChlidren',
     value: function checkChlidren(id) {
-      var $branchDom = this.container.find("#" + id);
+      var $branchDom = this.container.find('#' + id);
       if ($branchDom.siblings('.QTree-children-container').length) {
         return true;
       } else {
@@ -373,9 +443,9 @@ var Qtree = function () {
     //  添加分支
 
   }, {
-    key: "addBranch",
+    key: 'addBranch',
     value: function addBranch(pid, data) {
-      var branchContainer = $("children_" + pid);
+      var branchContainer = $('children_' + pid);
       if (!branchContainer.length) return;
       var newBranch = this.createBranch(data);
       branchContainer.append(newBranch);

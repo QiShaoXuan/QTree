@@ -1,23 +1,4 @@
-let mockData = [
-  {id: "32", pid: "3", index: 1, name: "叶子节点 3-2", allArea: '4', rentArea: '3'},
-  {id: "1", pid: "0", name: "父节点 1", allArea: '1234', rentArea: '56789123'},
-  {id: "112", pid: "11", name: "叶子节点 1-1-2", allArea: '1234', rentArea: '56789123'},
-  {id: "22", pid: "2", index: 1, name: "叶子节点 2-2", allArea: '5', rentArea: '2'},
-  {id: "1120", pid: "112", name: "叶子节点 1-1-2-0", allArea: '1234', rentArea: '56789123'},
-  {id: "12", pid: "1", name: "叶子节点 1-2", allArea: '4', rentArea: '56789123'},
-  {id: "13", pid: "1", name: "叶子节点 1-3", allArea: '4', rentArea: '56789123'},
-  {id: "2", pid: "0", index: 0, name: "父节点 2", allArea: '15', rentArea: '6'},
-  {id: "21", pid: "2", index: 1, name: "叶子节点 2-1", allArea: '5', rentArea: '2'},
-  {id: "11", pid: "1", name: "叶子节点 1-1", allArea: '1234', rentArea: '56789123'},
-  {id: "110", pid: "11", name: "叶子节点 1-1-0", allArea: '1234', rentArea: '56789123'},
-  {id: "111", pid: "11", name: "叶子节点 1-1-1", allArea: '1234', rentArea: '56789123'},
-  {id: "1121", pid: "112", name: "叶子节点 1-1-2-1", allArea: '1234', rentArea: '56789123'},
-  {id: "23", pid: "2", index: 1, name: "叶子节点 2-3", allArea: '5', rentArea: '2'},
-  {id: "3", pid: "0", index: 0, name: "父节点 3", allArea: '12', rentArea: '9'},
-  {id: "31", pid: "3", index: 1, name: "叶子节点 3-1", allArea: '4', rentArea: '3'},
-  {id: "1122", pid: "112", name: "叶子节点 1-1-2-2", allArea: '1234', rentArea: '56789123'},
-  {id: "33", pid: "3", index: 1, name: "叶子节点 3-3", allArea: '4', rentArea: '3'},
-];
+
 //    div(class=QTree-children-container , id=children_x)
 //        |
 //        |--div(class=QTree-branch-container , id=container_x)
@@ -37,7 +18,8 @@ class Qtree {
       icon: '',
       openID: '',
       branchClickEvent: '',
-      renderData: ['name']
+      renderData: ['name'],
+      openBranch:0,
     }
     //如果要自定义渲染的数据，需要在renderData中添加渲染的属性值，并且在branchFormatter中对应的标签内添加相应的值
 
@@ -54,17 +36,63 @@ class Qtree {
   }
 
   init() {
-    this.sortNodes(this.nodeData);
+    this.initData()
     this.createTree()
     this.setSwitchEvent()
   }
 
+  //初始化数据
+  initData(){
+    //添加祖元素
+    let rootNode = {id: '0', pid: '', name: "root", open: true}
+    this.nodeData.splice(0, 0, rootNode);
+    //设置初始化时需要打开的分支
+    this.setOpenBranchArr()
+    //处理数据顺序
+    this.sortNodes(this.nodeData);
+
+  }
+
+  //设置初始时打开分支的化列表
+  setOpenBranchArr(){
+    let openID = Number(this.setting.openBranch);
+    //检查是否为数字且整数
+    if(!openID && Math.floor(openID) != openID) return ;
+
+    let openArr = [];
+    this.findOpenBranch(openID,null,openArr);
+
+    this.setting.openBranch = openArr;
+
+  }
+
+  findOpenBranch(id,pid,arr){
+    if(id == 0){
+      arr.push(id)
+      return '0'
+    }
+    if(pid === ''){
+      return;
+    }
+    if(pid){
+      let parent = this.nodeData.find((v) => {
+        return v.id === pid;
+      })
+      arr.push(parent.id)
+      return this.findOpenBranch(id,parent.pid,arr)
+    }else{
+      let child = this.nodeData.find((v) => {
+        return v.id == id;
+      });
+
+      arr.push(id)
+      return this.findOpenBranch(id,child.pid,arr)
+    }
+
+  }
   //处理数据排序
   sortNodes(treejson) {
     let that = this;
-    //添加祖元素
-    let rootNode = {id: '0', pid: '', name: "root", open: true}
-    treejson.splice(0, 0, rootNode)
     generateNode(treejson)
 
     function formatTreeData(treejson) {
@@ -89,7 +117,7 @@ class Qtree {
       return formatTreeJson;
     }
 
-    var formatJson = null;
+    let formatJson = null;
 
     function generateNode(treejson) {
       formatJson = formatTreeData(treejson);
@@ -107,8 +135,22 @@ class Qtree {
       json.child.forEach((v, i) => {
         json.child[i].sortID = pnode + json.child[i].sortID;
         arr.push(json.child[i]);
-        if (formatJson[json.child[i].id] && json.child[i].pid != '') {
+
+        // console.log(formatJson[json.child[i].id]);
+        // if (formatJson[json.child[i].id] && json.child[i].pid != '') {
+        //   json.child[i].open = false
+        // }
+        let isOpen = that.setting.openBranch.find((v) => {
+          return v == json.child[i].id;
+        });
+        let hasChildren = that.nodeData.find((v) => {
+          return v.pid === json.child[i].id
+        })
+
+        if(isOpen == undefined || hasChildren == undefined){
           json.child[i].open = false
+        }else{
+          json.child[i].open = true;
         }
         node(formatJson[json.child[i].id], json.child[i].sortID, arr);
       })
@@ -117,8 +159,8 @@ class Qtree {
 
 // 创建树
   createTree() {
-    var that = this;
-    var frag = $(document.createDocumentFragment());
+    let that = this;
+    let frag = $(document.createDocumentFragment());
     this.nodeData.forEach((v, i) => {
       if (v.pid) {
         frag.find(`#children_${v.pid}`).append(that.createBranch(v));
@@ -157,10 +199,8 @@ class Qtree {
     this.loadBranchData(branch, branchData)
 
     //2.添加开关
-    if (branchData.hasOwnProperty('open')) {
-      let switchSpan = this.createSwitch(branchData.open);
-      branch.prepend(switchSpan)
-    }
+    let switchSpan = this.createSwitch(branchData);
+    branch.prepend(switchSpan)
     //3.添加空格
     branch.prepend(emptySpan)
 
@@ -193,7 +233,7 @@ class Qtree {
 
   // isShow(pid, originData) {
   //   if (pid === '') return true;
-  //   var parent = this.nodeData.find((v) => {
+  //   let parent = this.nodeData.find((v) => {
   //     return v.id == pid
   //   })
   //
@@ -206,19 +246,28 @@ class Qtree {
 
   //判断是否有子节点
   hasChildren(id) {
-    var child = this.nodeData.find((v, i) => {
+    let child = this.nodeData.find((v, i) => {
       return v.pid === id;
     })
     return child ? true : false;
   }
 
   //创建开关按钮
-  createSwitch(open) {
-    if (open) {
-      return `<i class="switch minus-btn" data-switch="true"></i>`
-    } else {
-      return `<i class="switch plus-btn" data-switch="false"></i>`
+  createSwitch(branchData) {
+    let hasChildren = this.nodeData.find((v) => {
+      return v.pid == branchData.id
+    });
+     // 如果有子节点则设置开关
+    if(hasChildren != undefined){
+      if (branchData.open) {
+        return `<i class="switch minus-btn" data-switch="true"></i>`
+      } else {
+        return `<i class="switch plus-btn" data-switch="false"></i>`
+      }
+    }else {
+      return `<span class="empty-span"></span>`
     }
+
   }
 
   //根据index判断是第几层级添加空格
@@ -263,11 +312,11 @@ class Qtree {
   }
   //设置开关事件
   setSwitchEvent() {
-    var that = this;
+    let that = this;
     this.container.on('click', '.switch', function (e) {
       e.stopPropagation();
-      var status = $(this).attr('data-switch');
-      var id = $(this).parents('.QTree-branch').data('treeData').id;
+      let status = $(this).attr('data-switch');
+      let id = $(this).parents('.QTree-branch').data('treeData').id;
       switch (status) {
         case 'true':
           that.closeBranch(id);
