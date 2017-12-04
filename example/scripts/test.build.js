@@ -34,5 +34,3 @@ $('#treeModal #tree-modal-sure').on('click', function () {
   }
   $('#treeModal').modal('hide');
 });
-
-console.log(tree);

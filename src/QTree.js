@@ -50,7 +50,6 @@ class Qtree {
     this.setOpenBranchArr()
     //处理数据顺序
     this.sortNodes(this.nodeData);
-
   }
 
   //设置初始时打开分支的化列表

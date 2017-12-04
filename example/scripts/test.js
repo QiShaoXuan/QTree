@@ -61,6 +61,7 @@ $('#treeModal #tree-modal-sure').on('click', function () {
     tree.updateBranch(id,newData)
   }
   $('#treeModal').modal('hide')
+
+
 });
 
-console.log(tree)

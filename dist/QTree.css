@@ -59,17 +59,3 @@
 
 .QTree-hide {
   display: none; }
-
-.tree-container {
-  width: 80%;
-  margin: 0 auto;
-  border: 1px solid #ddd; }
-
-.edit-container .btn {
-  cursor: pointer; }
-
-.branchCenter {
-  flex-grow: 2;
-  display: flex;
-  justify-content: space-around;
-  align-items: center; }
