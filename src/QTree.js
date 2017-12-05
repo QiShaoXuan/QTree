@@ -1,4 +1,3 @@
-
 //    div(class=QTree-children-container , id=children_x)
 //        |
 //        |--div(class=QTree-branch-container , id=container_x)
@@ -19,7 +18,7 @@ class Qtree {
       openID: '',
       branchClickEvent: '',
       renderData: ['name'],
-      openBranch:0,
+      openBranch: 0,
     }
     //如果要自定义渲染的数据，需要在renderData中添加渲染的属性值，并且在branchFormatter中对应的标签内添加相应的值
 
@@ -42,7 +41,7 @@ class Qtree {
   }
 
   //初始化数据
-  initData(){
+  initData() {
     //添加祖元素
     let rootNode = {id: '0', pid: '', name: "root", open: true}
     this.nodeData.splice(0, 0, rootNode);
@@ -50,45 +49,45 @@ class Qtree {
     this.setOpenBranchArr()
     //处理数据顺序
     this.sortNodes(this.nodeData);
+    console.log(this.nodeData)
   }
 
   //设置初始时打开分支的化列表
-  setOpenBranchArr(){
+  setOpenBranchArr() {
     let openID = Number(this.setting.openBranch);
     //检查是否为数字且整数
-    if(!openID && Math.floor(openID) != openID) return ;
+    if (!openID && Math.floor(openID) != openID) return;
 
     let openArr = [];
-    this.findOpenBranch(openID,null,openArr);
+    this.findOpenBranch(openID, null, openArr);
 
     this.setting.openBranch = openArr;
-
   }
 
-  findOpenBranch(id,pid,arr){
-    if(id == 0){
+  findOpenBranch(id, pid, arr) {
+    if (id == 0) {
       arr.push(id)
       return '0'
     }
-    if(pid === ''){
+    if (pid === '') {
       return;
     }
-    if(pid){
+    if (pid) {
       let parent = this.nodeData.find((v) => {
         return v.id === pid;
       })
       arr.push(parent.id)
-      return this.findOpenBranch(id,parent.pid,arr)
-    }else{
+      return this.findOpenBranch(id, parent.pid, arr)
+    } else {
       let child = this.nodeData.find((v) => {
         return v.id == id;
       });
 
       arr.push(id)
-      return this.findOpenBranch(id,child.pid,arr)
+      return this.findOpenBranch(id, child.pid, arr)
     }
-
   }
+
   //处理数据排序
   sortNodes(treejson) {
     let that = this;
@@ -146,9 +145,9 @@ class Qtree {
           return v.pid === json.child[i].id
         })
 
-        if(isOpen == undefined || hasChildren == undefined){
+        if (isOpen == undefined || hasChildren == undefined) {
           json.child[i].open = false
-        }else{
+        } else {
           json.child[i].open = true;
         }
         node(formatJson[json.child[i].id], json.child[i].sortID, arr);
@@ -164,7 +163,7 @@ class Qtree {
       if (v.pid) {
         frag.find(`#children_${v.pid}`).append(that.createBranch(v));
         // if ('open' in v) {
-          frag.find(`#container_${v.id}`).append(that.createBranchContainer(v.id, v.open))
+        frag.find(`#container_${v.id}`).append(that.createBranchContainer(v.id, v.open))
         // }
       } else {
         frag.append(that.createBranchContainer(v.id, v.open))
@@ -182,7 +181,6 @@ class Qtree {
 
 //创建分支
   createBranch(branchData) {
-
     let branch = $(this.setting.branchFormatter);
     //在dom上绑定对应的数据
     branch.data('treeData', branchData)
@@ -256,42 +254,46 @@ class Qtree {
     let hasChildren = this.nodeData.find((v) => {
       return v.pid == branchData.id
     });
-     // 如果有子节点则设置开关
-    if(hasChildren != undefined){
-      if (branchData.open) {
-        return `<i class="switch minus-btn" data-switch="true"></i>`
-      } else {
-        return `<i class="switch plus-btn" data-switch="false"></i>`
-      }
-    }else {
+    // 如果有子节点则设置开关
+    if (hasChildren != undefined) {
+      return this.createSwitchString(branchData.open)
+    } else {
       return `<span class="empty-span"></span>`
+    }
+  }
+
+  createSwitchString(boolean){
+    if(boolean){
+      return `<i class="switch minus-btn" data-switch="true"></i>`
+    }else{
+      return `<i class="switch plus-btn" data-switch="false"></i>`
     }
 
   }
 
   //根据index判断是第几层级添加空格
   createEmptySpan(sortID) {
-    let num = countIndex(sortID)
+    let num = this.countIndex(sortID);
     let emptySpan = '';
     for (let i = 0; i < num; i++) {
       emptySpan = emptySpan + '<span class="empty-span"></span>';
     }
     return emptySpan
+  }
 
-    //根据sortID判断当前节点层级
-    function countIndex(sortID) {
-      if (sortID) {
-        return sortID.length / 4 - 2
-      } else {
-        return 0
-      }
+  //根据sortID判断当前节点层级
+  countIndex(sortID) {
+    if (sortID) {
+      return sortID.length / 4 - 2
+    } else {
+      return 0
     }
   }
 
   //同步视图上的数据和dom中存储的数据
-  syncData(id,data){
+  syncData(id, data) {
     let $branchDom = this.container.find(`#${id}`);
-    for(let i in data){
+    for (let i in data) {
       $branchDom.data('treeData')[i] = data[i]
     }
   }
@@ -302,13 +304,15 @@ class Qtree {
   //打开分支
   openBranch(id) {
     this.container.find(`#children_${id}`).removeClass('QTree-hide');
-    this.syncData(id,{open:true})
+    this.syncData(id, {open: true})
   }
+
   //关闭分支
   closeBranch(id) {
     this.container.find(`#children_${id}`).addClass('QTree-hide');
-    this.syncData(id,{open:false})
+    this.syncData(id, {open: false})
   }
+
   //设置开关事件
   setSwitchEvent() {
     let that = this;
@@ -348,7 +352,7 @@ class Qtree {
     if (Object.keys(changeData).length) {
       //将新的数据更新到对应dom中
       this.updateBranchData($branchDom, changeData)
-      this.syncData(id,changeData)
+      this.syncData(id, changeData)
     }
   }
 
@@ -368,26 +372,47 @@ class Qtree {
   }
 
 //  删除分支
-  removeBranch(id){
+  removeBranch(id) {
     let $branchDom = this.container.find(`#${id}`);
     if (!$branchDom.length) return;
     $branchDom.parent().remove();
+    this.checkSwitch(id)
   }
+
 //  检查分支是否有子分支，返回true或false
-  checkChlidren(id){
+  checkChlidren(id) {
     let $branchDom = this.container.find(`#${id}`);
-    if($branchDom.siblings('.QTree-children-container').children().length){
+    if ($branchDom.siblings('.QTree-children-container').children().length) {
       return true;
-    }else{
+    } else {
       return false;
     }
   }
+
 //  添加分支
-  addBranch(pid,data){
+  addBranch(pid, data) {
     let branchContainer = $(`children_${pid}`)
-    if(!branchContainer.length) return ;
+    if (!branchContainer.length) return;
     let newBranch = this.createBranch(data);
-    branchContainer.append(newBranch)
+    branchContainer.append(newBranch);
+    this.checkSwitch(pid)
+  }
+
+//  在删除或添加分支后检查节点的子节点，判断是否需要隐藏开关
+//  在添加或删除操作完成后使用
+  checkSwitch(id) {
+    let branch = $(`#${id}`);
+    let branchIndex = this.countIndex(branch.data('treeData')['sortID']);
+    if (this.checkChlidren(id) && !branch.find('.switch').length) {
+      //有子节点无开关
+      let switchString = this.createSwitchString(false);
+      branch.find('.empty-span').last().after(switchString).remove();
+    } else if (!this.checkChlidren(id) && branch.find('.switch').length) {
+      //无子节点有开关
+      let emptySpan = this.createEmptySpan('000100010001')
+      branch.find('.switch').remove().end()
+        .prepend(emptySpan)
+    }
   }
 }
 
