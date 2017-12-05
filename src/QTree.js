@@ -398,10 +398,12 @@ class Qtree {
 //  添加分支
   addBranch(pid, data) {
     let branchContainer = $(`children_${pid}`)
-    if (!branchContainer.length) return;
+    let sortIndex = branchContainer.children.length + 1;
+    data.sortID = sortIndex * 1 < 10 ? ("000" + sortIndex) : ( sortIndex * 1 > 100 ? ("00" + sortIndex) : (sortIndex * 1 > 1000 ? sortIndex : ('0' + sortIndex)));
+
     let newBranch = this.createBranch(data);
     branchContainer.append(newBranch);
-    this.checkSwitch(pid)
+    this.checkSwitch(pid);
   }
 
 //  在删除或添加分支后检查节点的子节点，判断是否需要隐藏开关
