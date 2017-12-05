@@ -48,7 +48,7 @@ class Qtree {
     let ancestor = this.nodeData.find((v) => {
       return v.id == 0;
     })
-    if(!ancestor){
+    if (!ancestor) {
       let rootNode = {id: '0', pid: '', name: "root", open: true};
       this.nodeData.splice(0, 0, rootNode);
     }
@@ -269,10 +269,10 @@ class Qtree {
     }
   }
 
-  createSwitchString(boolean){
-    if(boolean){
+  createSwitchString(boolean) {
+    if (boolean) {
       return `<i class="switch minus-btn" data-switch="true"></i>`;
-    }else{
+    } else {
       return `<i class="switch plus-btn" data-switch="false"></i>`;
     }
 
@@ -420,8 +420,36 @@ class Qtree {
       //无子节点有开关
       let emptySpan = this.createEmptySpan('000100010001');
       branch.find('.switch').remove().end()
-        .prepend(emptySpan)
+        .prepend(emptySpan);
     }
+  }
+
+//  输出分支下的所有数据
+//  默认所有的数据
+  getTreeData(id) {
+    let branchID = id ? id : 0;
+    let dataList = [];
+
+    // 如果不是所有节点，需要把当前节点的数据存入
+    if (branchID) {
+      dataList.push($(`#${id}`).data('treeData'))
+    }
+
+    $(`#children_${id}`).find('.QTree-branch').each((i, v) => {
+      dataList.push($(v).data('treeData'));
+    });
+
+    return dataList;
+  }
+
+  moveBranch(id, newpid) {
+    //  克隆出要移动的dom，container_x
+    //  获取到要移动的数据
+    //  获取新的父节点sortID进行比较
+    //  改变要移动的数据的sortID和顶层节点的pid
+    //  将改变的数据重新绑定在克隆出来的dom中
+    //  将dom插入到新的节点下
+
   }
 }
 
