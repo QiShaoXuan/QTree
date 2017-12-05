@@ -376,7 +376,7 @@ class Qtree {
 //  检查分支是否有子分支，返回true或false
   checkChlidren(id){
     let $branchDom = this.container.find(`#${id}`);
-    if($branchDom.siblings('.QTree-children-container').length){
+    if($branchDom.siblings('.QTree-children-container').children().length){
       return true;
     }else{
       return false;
