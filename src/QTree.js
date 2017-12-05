@@ -43,8 +43,14 @@ class Qtree {
   //初始化数据
   initData() {
     //添加祖元素
-    let rootNode = {id: '0', pid: '', name: "root", open: true}
-    this.nodeData.splice(0, 0, rootNode);
+    //可能会有祖元素，也避免实例化多次添加多个
+    let ancestor = this.nodeData.find((v) => {
+      return v.id == 0;
+    })
+    if(!ancestor){
+      let rootNode = {id: '0', pid: '', name: "root", open: true}
+      this.nodeData.splice(0, 0, rootNode);
+    }
     //设置初始化时需要打开的分支
     this.setOpenBranchArr()
     //处理数据顺序
