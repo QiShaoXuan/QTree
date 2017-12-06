@@ -52,6 +52,7 @@ class Qtree {
       let rootNode = {id: '0', pid: '', name: "root", open: true};
       this.nodeData.splice(0, 0, rootNode);
     }
+    console.log(this.nodeData)
     //设置初始化时需要打开的分支
     this.setOpenBranchArr();
     //处理数据顺序
@@ -98,6 +99,8 @@ class Qtree {
   //处理数据排序
   sortNodes(treejson) {
     let that = this;
+    var treejson = treejson;
+
     generateNode(treejson);
 
     function formatTreeData(treejson) {
@@ -122,16 +125,13 @@ class Qtree {
       return formatTreeJson;
     }
 
-    let formatJson = null;
+    var formatJson = null;
 
     function generateNode(treejson) {
       formatJson = formatTreeData(treejson);
       let nodeArr = [];
       node(formatJson[""], "", nodeArr);
 
-      let length = nodeArr.length;
-
-      // that.nodeData = nodeArr.splice(1, length - 1)
       that.nodeData = nodeArr;
     }
 
@@ -380,16 +380,17 @@ class Qtree {
 
 //  删除分支
   removeBranch(id) {
-    let $branchDom = this.container.find(`#${id}`);
+    let $branchDom = this.container.find(`#container_${id}`);
+    console.log( $branchDom)
     if (!$branchDom.length) return;
-    $branchDom.parent().remove();
-    this.checkSwitch(id);
+    $branchDom.remove();
+    this.checkSwitch(id, 'del');
   }
 
 //  检查分支是否有子分支，返回true或false
   checkChlidren(id) {
-    let $branchDom = this.container.find(`#${id}`);
-    if ($branchDom.siblings('.QTree-children-container').children().length) {
+    let $branchDom = this.container.find(`#children_${id}`);
+    if ($branchDom.children().length) {
       return true;
     } else {
       return false;
@@ -397,31 +398,58 @@ class Qtree {
   }
 
 //  添加分支
+//  data中需要id
   addBranch(pid, data) {
-    let branchContainer = $(`children_${pid}`);
+    if(!('id' in data)) {
+      console.error('add branch must need this branch\'s id');
+      return;
+    }
+
+    let branchContainer = $(`#children_${pid}`);
+    // 设置sortID
+    let parentSortID = $(`#${pid}`).length?$(`#${pid}`).data('treeData').sortID:'';
     let sortIndex = branchContainer.children.length + 1;
-    data.sortID = sortIndex * 1 < 10 ? ("000" + sortIndex) : ( sortIndex * 1 > 100 ? ("00" + sortIndex) : (sortIndex * 1 > 1000 ? sortIndex : ('0' + sortIndex)));
+    data.sortID = parentSortID + (sortIndex * 1 < 10 ? ("000" + sortIndex) : ( sortIndex * 1 > 100 ? ("00" + sortIndex) : (sortIndex * 1 > 1000 ? sortIndex : ('0' + sortIndex))));
+    //设置open
+    data.open = false;
 
     let newBranch = this.createBranch(data);
+    newBranch.append(this.createBranchContainer(data.id, data.open))
     branchContainer.append(newBranch);
-    this.checkSwitch(pid);
+
+    this.checkSwitch(pid, 'add');
   }
 
 //  在删除或添加分支后检查节点的子节点，判断是否需要隐藏开关
 //  在添加或删除操作完成后使用
-  checkSwitch(id) {
-    let branch = $(`#${id}`);
-    let branchIndex = this.countIndex(branch.data('treeData')['sortID']);
-    if (this.checkChlidren(id) && !branch.find('.switch').length) {
-      //有子节点无开关
-      let switchString = this.createSwitchString(false);
-      branch.find('.empty-span').last().after(switchString).remove();
-    } else if (!this.checkChlidren(id) && branch.find('.switch').length) {
-      //无子节点有开关
-      let emptySpan = this.createEmptySpan('000100010001');
-      branch.find('.switch').remove().end()
-        .prepend(emptySpan);
+  checkSwitch(id, action) {
+    switch (action) {
+      case 'del':
+        let pid = $(`#${id}`).data('treeData').pid
+        let branchP = $(`#${pid}`);
+        if (!this.checkChlidren(id) && branchP.find('.switch').length) {
+          //无子节点有开关
+          let emptySpan = this.createEmptySpan('000100010001');
+          branchP.find('.switch').remove().end()
+            .prepend(emptySpan);
+
+          $(`#children_${pid}`).addClass('QTree-hide')
+        }
+        break;
+      case 'add':
+        let branch = $(`#${id}`);
+        // if (!this.checkChlidren(id) && !branch.find('.switch').length) {
+        //   let switchString = this.createSwitchString(false);
+        //   branch.find('.empty-span').last().after(switchString).remove();
+        // }
+        if (this.checkChlidren(id) && !branch.find('.switch').length) {
+          //有子节点无开关
+          let switchString = this.createSwitchString(false);
+          branch.find('.empty-span').last().after(switchString).remove();
+        }
+        break;
     }
+
   }
 
 //  输出分支下的所有数据
