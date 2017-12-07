@@ -52,12 +52,10 @@ class Qtree {
       let rootNode = {id: '0', pid: '', name: "root", open: true};
       this.nodeData.splice(0, 0, rootNode);
     }
-    console.log(this.nodeData)
     //设置初始化时需要打开的分支
     this.setOpenBranchArr();
     //处理数据顺序
     this.sortNodes(this.nodeData);
-    console.log(this.nodeData);
   }
 
   //设置初始时打开分支的化列表
@@ -381,7 +379,7 @@ class Qtree {
 //  删除分支
   removeBranch(id) {
     let $branchDom = this.container.find(`#container_${id}`);
-    console.log( $branchDom)
+    console.log($branchDom)
     if (!$branchDom.length) return;
     $branchDom.remove();
     this.checkSwitch(id, 'del');
@@ -400,14 +398,14 @@ class Qtree {
 //  添加分支
 //  data中需要id
   addBranch(pid, data) {
-    if(!('id' in data)) {
+    if (!('id' in data)) {
       console.error('add branch must need this branch\'s id');
       return;
     }
 
     let branchContainer = $(`#children_${pid}`);
     // 设置sortID
-    let parentSortID = $(`#${pid}`).length?$(`#${pid}`).data('treeData').sortID:'';
+    let parentSortID = $(`#${pid}`).length ? $(`#${pid}`).data('treeData').sortID : '';
     let sortIndex = branchContainer.children.length + 1;
     data.sortID = parentSortID + (sortIndex * 1 < 10 ? ("000" + sortIndex) : ( sortIndex * 1 > 100 ? ("00" + sortIndex) : (sortIndex * 1 > 1000 ? sortIndex : ('0' + sortIndex))));
     //设置open
@@ -470,6 +468,7 @@ class Qtree {
     return dataList;
   }
 
+//  移动节点
   moveBranch(id, newpid) {
     //  克隆出要移动的dom，container_x
     //  获取到要移动的数据
@@ -477,6 +476,23 @@ class Qtree {
     //  改变要移动的数据的sortID和顶层节点的pid
     //  将改变的数据重新绑定在克隆出来的dom中
     //  将dom插入到新的节点下
+    let moveData = this.getTreeData(id);//要移动的所有节点的数据
+    let moveBranch = $(`#${id}`);//要移动选中的节点
+    let allMoveBranch = $(`#container_${id}`).clone(); //克隆要移动的所有节点
+    let moveBranch_sortID = moveBranch.data('treeData').sortID;//选中的移动节点的sortID
+    let newParentBranch = $(`#${newpid}`);//新的父节点
+    let newParentBranch_children = $(`#children_${id}`);//新的父节点的子节点容器
+    let newParentBranch_sortID = newParentBranch.data('treeData').sortID;//新的父节点的sortID
+
+  //  对比sortID
+    let d_value = this.countIndex(newParentBranch_sortID)  - this.countIndex(moveBranch_sortID);
+    if(d_value == 0){
+      return ;
+    }
+    if(d_value > 0){
+      allMoveBranch.find('.QTree-branch')
+    }
+
 
   }
 }
