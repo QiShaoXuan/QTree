@@ -1,8 +1,8 @@
 //自定义
 .tree-container{
-  width:80%;
   margin:0 auto;
-  border:1px solid #ddd;
+  //border:1px solid #ddd;
+  //height:100%;
 }
 .edit-container{
   .btn{
@@ -18,4 +18,42 @@
 pre{
   background: transparent;
   border:none;
+  padding:0;
+}
+
+.demo{
+  margin:0 auto;
+  min-height:200px;
+  max-height: 500px;
+  .left{
+    overflow: auto;
+  }
+  .right{
+    min-height:200px;
+    max-height: 100%;
+    overflow: auto;
+    pre{
+      margin:0;
+      border-radius: 0;
+      code{
+        min-height:200px;
+        max-height: 100%;
+        overflow: auto;
+      }
+    }
+  }
+}
+
+#tree-dropdown{
+  width:100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+#tree-dropdown-menu{
+  width:100%;
+  padding:5px 15px;
+  .QTree-branch {
+    cursor: pointer;
+  }
 }

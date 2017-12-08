@@ -54,52 +54,102 @@
 </div>
 
 
-<div class="tree-container" id="tree-container"></div>
+<div class="container">
+  <h3>基础用法</h3>
+  <div class="demo clearfix">
+    <div class="left panel panel-default col-md-6 col-xs-12" style="height:300px;">
+      <div class="tree-container" id="tree-container"></div>
+    </div>
+    <div class="right col-md-6 col-xs-12 ">
+      <pre><code>
+        var tree = new Qtree('#tree-container', mockData)
+      </code></pre>
+    </div>
+  </div>
 
-<pre>
-  <code class="javascript">
-  var mockData = [
-  {id: "1", pid: "0", name: "父节点 1", allArea: '1234', rentArea: '56789123'},
-  {id: "11", pid: "1", name: "叶子节点 1-1", allArea: '1234', rentArea: '56789123'},
-  {id: "110", pid: "11", name: "叶子节点 1-1-0", allArea: '1234', rentArea: '56789123'},
-  {id: "111", pid: "11", name: "叶子节点 1-1-1", allArea: '1234', rentArea: '56789123'},
-  {id: "12", pid: "1", name: "叶子节点 1-2", allArea: '4', rentArea: '56789123'},
-  {id: "13", pid: "1", name: "叶子节点 1-3", allArea: '4', rentArea: '56789123'},
-  {id: "112", pid: "11", name: "叶子节点 1-1-2", allArea: '1234', rentArea: '56789123'},
-  {id: "1120", pid: "112", name: "叶子节点 1-1-2-0", allArea: '1234', rentArea: '56789123'},
-  {id: "1121", pid: "112", name: "叶子节点 1-1-2-1", allArea: '1234', rentArea: '56789123'},
-  {id: "1122", pid: "112", name: "叶子节点 1-1-2-2", allArea: '1234', rentArea: '56789123'},
-  {id: "2", pid: "0", index: 0, name: "父节点 2", allArea: '15', rentArea: '6'},
-  {id: "21", pid: "2", index: 1, name: "叶子节点 2-1", allArea: '5', rentArea: '2'},
-  {id: "22", pid: "2", index: 1, name: "叶子节点 2-2", allArea: '5', rentArea: '2'},
-  {id: "23", pid: "2", index: 1, name: "叶子节点 2-3", allArea: '5', rentArea: '2'},
-  {id: "3", pid: "0", index: 0, name: "父节点 3", allArea: '12', rentArea: '9'},
-  {id: "31", pid: "3", index: 1, name: "叶子节点 3-1", allArea: '4', rentArea: '3'},
-  {id: "32", pid: "3", index: 1, name: "叶子节点 3-2", allArea: '4', rentArea: '3'},
-  {id: "33", pid: "3", index: 1, name: "叶子节点 3-3", allArea: '4', rentArea: '3'},
-];
-  </code>
-</pre>
+  <h3>自定义渲染内容</h3>
+  <div class="demo clearfix">
+    <div class="left panel panel-default col-md-6 col-xs-12" style="height:373px">
+      <div class="title"></div>
+      <div class="tree-container" id="tree-container-define"></div>
+    </div>
+    <div class="right col-md-6 col-xs-12 ">
+      <pre><code class="javascript">
+var domStr =
+  `&lt;div class="QTree-branch"&gt;
+    &lt;span class="tree-content" name&gt;&lt;/span&gt;
+    &lt;div class="branchCenter"&gt;
+      &lt;span class="tree-content" value_1&gt;&lt;/span&gt;
+      &lt;span class="tree-content" value_2&gt;&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;div class="edit-container"&gt;
+      &lt;span class="btn edit-btn"&gt;编辑&lt;/span&gt;
+      &lt;span class="btn edit-btn"&gt;添加&lt;/span&gt;
+      &lt;span class="btn del-btn"&gt;删除&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;`;
+var tree_define = new Qtree('#tree-container-define', mockData,
+  {
+    branchFormatter: domStr,
+    renderData: ['name', 'value_1', 'value_2'],
+  })
+      </code></pre>
+    </div>
+  </div>
 
 
-<pre><code class="javascript">
-  var a = b;
-  function $initHighlight(block, cls) {
-  try {
-    if (cls.search(/\bno\-highlight\b/) != -1)
-      return process(block, true, 0x0F) +
-             ` class="${cls}"`;
-  } catch (e) {
-    /* handle exception */
-  }
-  for (var i = 0 / 2; i < classes.length; i++) {
-    if (checkCondition(classes[i]) === undefined)
-      console.log('undefined');
-  }
+  <h3>配置项</h3>
+  <div class="demo clearfix">
+    <div class="col-md-12 col-xs-12 ">
+      <pre><code>
+var tree = new Qtree(containerID, data, setting)
+
+containerID // 树状图容器的id
+data //相关数据
+setting //相关配置
+
+//默认配置如下
+{
+  branchFormatter: '&lt;div class="QTree-branch"&gt;&lt;span class="tree-content name" name&gt;&lt;/span&gt;&lt;/div&gt;',
+  renderData: ['name'],
+  openBranch: 0,
 }
+      </code></pre>
+    </div>
+  </div>
 
-export  $initHighlight;
-</code></pre>
+  <h3>方法</h3>
+  <div class="demo clearfix">
+    <div class="col-md-12 col-xs-12 ">
+      <pre><code>
+var tree = new Qtree('#tree-container', mockData)
+
+//打开节点
+tree.openBranch(id);
+//关闭节点
+tree.closeBranch(id);
+//添加节点
+tree.addBranch(pid, data);
+//移除节点
+tree.removeBranch(id);
+//检查节点是否有子节点
+tree.checkChlidren(id);
+//更新节点数据
+tree.updateBranch(id, editData);
+//获取节点的数据（默认全部）
+tree.getTreeData([id])
+//移动节点
+tree.moveBranch(id, newpid)
+      </code></pre>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
 
 
 <div class="modal fade edit-modal" tabindex="-1" role="dialog" id="treeModal" data-backdrop="static">
@@ -119,36 +169,22 @@ export  $initHighlight;
               <input type="text" class="form-control" id="node-name" name="value" placeholder="请输入名称">
             </div>
             <div class="form-group col-sm-12 modal-formgroup" style="padding:0 25px;">
-              <span class="faker-label">所属园区</span>
-              <select id="pk_id" name="park" class="selectpicker show-tick form-control bs-select-hidden"
-                      data-live-search="true" title="选择所属园区">
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-              </select>
+              <span class="faker-label">value_1</span>
+              <input type="text" class="form-control" id="value_1" name="allArea" placeholder="请输入总面积">
             </div>
             <div class="form-group col-sm-12 modal-formgroup" style="padding:0 25px;">
-              <span class="faker-label">总面积</span>
-              <input type="text" class="form-control" id="allArea" name="allArea" placeholder="请输入总面积">
-            </div>
-            <div class="form-group col-sm-12 modal-formgroup" style="padding:0 25px;">
-              <span class="faker-label">可租面积</span>
-              <input type="text" class="form-control" id="rentArea" name="rentArea" placeholder="请输入可租面积">
+              <span class="faker-label">value_2</span>
+              <input type="text" class="form-control" id="value_2" name="rentArea" placeholder="请输入可租面积">
             </div>
 
             <div class="form-group col-sm-12 modal-formgroup tree-menu" style="padding:0 25px;">
               <span class="faker-label">节点位置</span>
-              <div class="Qdropdown" id="treeDropdown">
-                <button id="dLabel" class="btn btn-default tree-menu-btn" type="button"
-                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
-                        style="width:100%;">
-                  <span class="text">请选择姓名</span>
+              <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="tree-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                  <span class="text">节点位置</span>
                   <span class="caret"></span>
                 </button>
-                <ul class="dropdown-menu" aria-labelledby="dLabel" id="treeModalNodeLists">
-
-                </ul>
+                <ul class="dropdown-menu" id="tree-dropdown-menu" aria-labelledby="dropdownMenu1"></ul>
               </div>
             </div>
           </div>
@@ -167,7 +203,7 @@ export  $initHighlight;
 <script src="scripts/asset/jquery.min.js"></script>
 <script src="scripts/asset/bootstrap.min.js"></script>
 <script src="scripts/asset/highlight.pack.js"></script>
-<!--<script src="scripts/asset/javascript.js"></script>-->
+
 <script src="scripts/QTree.build.js"></script>
 <script src="scripts/test.js"></script>
 <script>
