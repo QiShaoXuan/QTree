@@ -561,6 +561,7 @@ var Qtree = function () {
       var moveData = this.getTreeData(id); //要移动的所有节点的数据
       var moveBranch = this.container.find('.branch_' + id); //要移动选中的节点
       var allOriginBranch = this.container.find('.container_' + id); //所有节点
+      var oldPid = '' + moveBranch.data('treeData').pid;
 
       moveBranch.data('treeData').pid = newpid;
 
@@ -598,6 +599,8 @@ var Qtree = function () {
       //  插入节点
       allOriginBranch.remove();
       newParentBranch_children.append(cloneMoveBranch);
+      this.checkSwitch(oldPid, 'del');
+      this.checkSwitch(newpid, 'add');
     }
   }]);
 
