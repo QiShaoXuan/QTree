@@ -277,9 +277,11 @@ class Qtree {
   }
 
   //根据index判断是第几层级添加空格
-  createEmptySpan(sortID) {
-    let num = this.countIndex(sortID);
+  createEmptySpan(sortID, isNumber) {
+    //isNumber为true直接创建
+    let num = isNumber ? sortID : this.countIndex(sortID);
     let emptySpan = '';
+
     for (let i = 0; i < num; i++) {
       emptySpan = emptySpan + '<span class="empty-span"></span>';
     }
@@ -478,22 +480,42 @@ class Qtree {
     //  将dom插入到新的节点下
     let moveData = this.getTreeData(id);//要移动的所有节点的数据
     let moveBranch = $(`#${id}`);//要移动选中的节点
+
+    moveBranch.data('treeData').pid = newpid
+
     let allMoveBranch = $(`#container_${id}`).clone(); //克隆要移动的所有节点
     let moveBranch_sortID = moveBranch.data('treeData').sortID;//选中的移动节点的sortID
     let newParentBranch = $(`#${newpid}`);//新的父节点
     let newParentBranch_children = $(`#children_${id}`);//新的父节点的子节点容器
     let newParentBranch_sortID = newParentBranch.data('treeData').sortID;//新的父节点的sortID
 
-  //  对比sortID
-    let d_value = this.countIndex(newParentBranch_sortID)  - this.countIndex(moveBranch_sortID);
-    if(d_value == 0){
-      return ;
+    //  对比sortID
+    let d_value = this.countIndex(moveBranch_sortID) - this.countIndex(newParentBranch_sortID);//差值
+    if (d_value == 0) {
+      return;
     }
-    if(d_value > 0){
-      allMoveBranch.find('.QTree-branch')
+    //层级降低
+    if (d_value > 0) {
+      allMoveBranch.find('.QTree-branch').each((i,v) => {
+        while (d_value){
+          $(v).find('.empty-span').eq(0).remove();
+          d_value -- ;
+        }
+      })
+    }
+    //层级增加
+    if(d_value < 0){
+      let emptySpan = this.createEmptySpan(Math.abs(d_value),true)
+      allMoveBranch.find('.QTree-branch').prepend(emptySpan)
     }
 
+    //绑定数据
+    moveData.forEach((v) => {
+      allMoveBranch.find(`#${v.id}`).data('treeData',v)
+    });
 
+  //  插入节点
+    newParentBranch_children.append(allMoveBranch)
   }
 }
 
