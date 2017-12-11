@@ -136,10 +136,6 @@ class Qtree {
         json.child[i].sortID = pnode + json.child[i].sortID;
         arr.push(json.child[i]);
 
-        // console.log(formatJson[json.child[i].id]);
-        // if (formatJson[json.child[i].id] && json.child[i].pid != '') {
-        //   json.child[i].open = false
-        // }
         let isOpen = that.setting.openBranch.find((v) => {
           return v == json.child[i].id;
         });
@@ -147,8 +143,13 @@ class Qtree {
           return v.pid === json.child[i].id;
         })
 
+
         if (isOpen == undefined || hasChildren == undefined) {
-          json.child[i].open = false;
+          if(json.child[i].id == 0){
+            json.child[i].open = true;
+          }else{
+            json.child[i].open = false;
+          }
         } else {
           json.child[i].open = true;
         }
@@ -384,9 +385,10 @@ class Qtree {
 //  删除分支
   removeBranch(id) {
     let $branchDom = this.container.find(`.container_${id}`);
+    let pid = this.container.find(`.branch_${id}`).data('treeData').pid;
     if (!$branchDom.length) return;
     $branchDom.remove();
-    this.checkSwitch(id, 'del');
+    this.checkSwitch(pid, 'del');
   }
 
 //  检查分支是否有子分支，返回true或false
@@ -409,7 +411,7 @@ class Qtree {
 
     let branchContainer = this.container.find(`.children_${pid}`);
     // 设置sortID
-    let parentSortID = this.container.find(`.branch_${pid}`).length ? this.container.find(`.branch_${pid}`).data('treeData').sortID : '';
+    let parentSortID = this.container.find(`.branch_${pid}`).length ? this.container.find(`.branch_${pid}`).data('treeData').sortID : '0001';
     let sortIndex = branchContainer.children.length + 1;
     data.sortID = parentSortID + (sortIndex * 1 < 10 ? ("000" + sortIndex) : ( sortIndex * 1 > 100 ? ("00" + sortIndex) : (sortIndex * 1 > 1000 ? sortIndex : ('0' + sortIndex))));
     //设置open
@@ -425,17 +427,18 @@ class Qtree {
 //  在删除或添加分支后检查节点的子节点，判断是否需要隐藏开关
 //  在添加或删除操作完成后使用
   checkSwitch(id, action) {
+    if(!this.container.find(`.branch_${id}`).length && id==0) return ;//在删除所有节点的最后一个时不需要检查
     switch (action) {
       case 'del':
-        let pid = this.container.find(`.branch_${id}`).data('treeData').pid
-        let branchP = this.container.find(`.branch_${pid}`);
+        // let pid = this.container.find(`.branch_${id}`).data('treeData').pid
+        let branchP = this.container.find(`.branch_${id}`);
         if (!this.checkChlidren(id) && branchP.find('.switch').length) {
           //无子节点有开关
-          let emptySpan = this.createEmptySpan('000100010001');
+          let emptySpan = this.createEmptySpan(1,true);
           branchP.find('.switch').remove().end()
             .prepend(emptySpan);
 
-          this.container.find(`.children_${pid}`).addClass('QTree-hide')
+          this.container.find(`.children_${id}`).addClass('QTree-hide')
         }
         break;
       case 'add':
@@ -518,7 +521,7 @@ class Qtree {
       cloneMoveBranch.find(`.branch_${v.id}`).data('treeData',v)
     });
 
-  //  插入节点
+    //  插入节点
     allOriginBranch.remove();
     newParentBranch_children.append(cloneMoveBranch);
     this.checkSwitch(oldPid, 'del');
