@@ -4,7 +4,8 @@
   justify-content: flex-start;
   align-items: center;
   font-size: 15px;
-  color: #515151; }
+  color: #515151;
+  position: relative; }
   .QTree-branch .empty-span {
     width: 20px;
     height: 20px; }

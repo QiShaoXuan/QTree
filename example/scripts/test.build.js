@@ -15,21 +15,30 @@ var tree_define = new Qtree('#tree-container-define', mockData, {
 //编辑按钮
 $('#tree-container-define').on('click', '.edit-btn', function () {
   var data = $(this).parents('.QTree-branch').data('treeData');
-  $("#treeModal").data('data', data).data('type', 'edit');
+
   $('#node-name').val(data.name);
   $('#value_1').val(data.value_1);
   $('#value_2').val(data.value_2);
-  //打开对应节点
+
   $('#tree-dropdown .text').text(data.name);
+  //关闭原有节点并删除样式
+  tree_menu.closeAllBranch();
+  var intrinsicOpenData = $("#treeModal").data('data');
+  if (intrinsicOpenData) {
+    $('#tree-dropdown-menu .branch_' + intrinsicOpenData.id).removeClass('active-branch');
+  }
+  //打开对应节点 并添加选中样式
   tree_menu.openBranch(data.id);
+  $('#tree-dropdown-menu .branch_' + data.id).addClass('active-branch');
+  //将选中数据存在dom中
   $('#tree-dropdown').data('data', data);
-  $("#treeModal").modal('show');
+  $("#treeModal").data('data', data).data('type', 'edit').modal('show');
 });
 
 //添加按钮
 $('#tree-container-define').on('click', '.add-btn', function () {
   var data = $(this).parents('.QTree-branch').data('treeData');
-  $("#treeModal").data('data', data).data('type', 'add');
+
   $('#node-name').val('');
   $('#value_1').val('');
   $('#value_2').val('');
@@ -37,10 +46,23 @@ $('#tree-container-define').on('click', '.add-btn', function () {
   $('#tree-dropdown .text').text(data.name);
   tree_menu.openBranch(data.id);
   $('#tree-dropdown').data('data', data);
-  $("#treeModal").modal('show');
+  $("#treeModal").data('data', data).data('type', 'add').modal('show');
+});
+//删除按钮
+$('#tree-container-define').on('click', '.del-btn', function () {
+  var data = $(this).parents('.QTree-branch').data('treeData');
+  //删除节点需要先删除其下所有子节点
+  if (tree_define.hasChildren(data.id)) {
+    $("#del-modal .modal-body").text("\u8BF7\u5148\u5220\u9664 " + data.name + "\u4E0B\u7684\u6240\u6709\u5B50\u8282\u70B9");
+    $("#del-sure").prop('disabled', true);
+  } else {
+    $("#del-modal .modal-body").text("\u786E\u8BA4\u5220\u9664 " + data.name + "\uFF1F");
+    $("#del-sure").prop('disabled', false);
+  }
+  $("#del-modal").data('data', data).modal('show');
 });
 
-//模态框确定按钮
+//编辑模态框确定按钮
 $("#tree-modal-sure").on('click', function (e) {
   switch ($("#treeModal").data('type')) {
     case 'edit':
@@ -50,10 +72,11 @@ $("#tree-modal-sure").on('click', function (e) {
       var value_2 = $('#value_2').val();
       var menuID = $('#tree-dropdown').data('data').id;
       tree_define.updateBranch(data.id, { name: name, value_1: value_1, value_2: value_2 });
+      tree_menu.updateBranch(data.id, { name: name, value_1: value_1, value_2: value_2 });
       //节点移动
-      // console.log($('#tree-dropdown').data('data'),data)
       if (menuID != data.id) {
         tree_define.moveBranch(data.id, menuID);
+        tree_menu.moveBranch(data.id, menuID);
       }
       break;
     case 'add':
@@ -63,15 +86,25 @@ $("#tree-modal-sure").on('click', function (e) {
       var pid = $('#tree-dropdown').data('data').id;
       treeID += 1;
       tree_define.addBranch(pid, { id: treeID, name: name, value_1: value_1, value_2: value_2 });
-
+      tree_menu.addBranch(pid, { id: treeID, name: name, value_1: value_1, value_2: value_2 });
       break;
   }
 
   $("#treeModal").modal('hide');
 });
+//删除模态框确定按钮
+$("#del-sure").on('click', function (e) {
+  var data = $("#del-modal").data('data');
+  tree_define.removeBranch(data.id);
+  $("#del-modal").modal('hide');
+});
 
 //下拉菜单点击事件
 $('#tree-dropdown-menu').on('click', '.QTree-branch', function () {
   var branchData = $(this).data('treeData');
+  var intrinsicOpenData = $('#tree-dropdown').data('data');
+  $('#tree-dropdown-menu .branch_' + intrinsicOpenData.id).removeClass('active-branch');
+  $('#tree-dropdown-menu .branch_' + branchData.id).addClass('active-branch');
+
   $('#tree-dropdown').data('data', branchData).find('.text').text(branchData.name);
 });

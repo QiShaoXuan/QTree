@@ -1,4 +1,6 @@
-//自定义
+body{
+  background: #eeeeee;
+}
 .tree-container{
   margin:0 auto;
   //border:1px solid #ddd;
@@ -34,7 +36,6 @@ pre{
     overflow: auto;
     pre{
       margin:0;
-      border-radius: 0;
       code{
         min-height:200px;
         max-height: 100%;
@@ -56,4 +57,30 @@ pre{
   .QTree-branch {
     cursor: pointer;
   }
+}
+.active-branch{
+  background: #428bca;
+  color: #fff;
+  .switch:after{
+    background: #fff!important;
+  }
+  .switch:before{
+    background: #fff!important;
+  }
+}
+.active-branch:after{
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  right: 15px;
+  content: '';
+  width: 14px;
+  height: 8px;
+  background: 0 0;
+  border: 3px solid #fff;
+  border-top: 0;
+  border-right: 0;
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
 }

@@ -79,6 +79,7 @@ var Qtree = function () {
 
       this.setting.openBranch = openArr;
     }
+
     //初始化时处理要打开的节点（仅在初始化时使用）
 
   }, {
@@ -154,10 +155,6 @@ var Qtree = function () {
           json.child[i].sortID = pnode + json.child[i].sortID;
           arr.push(json.child[i]);
 
-          // console.log(formatJson[json.child[i].id]);
-          // if (formatJson[json.child[i].id] && json.child[i].pid != '') {
-          //   json.child[i].open = false
-          // }
           var isOpen = that.setting.openBranch.find(function (v) {
             return v == json.child[i].id;
           });
@@ -166,7 +163,11 @@ var Qtree = function () {
           });
 
           if (isOpen == undefined || hasChildren == undefined) {
-            json.child[i].open = false;
+            if (json.child[i].id == 0) {
+              json.child[i].open = true;
+            } else {
+              json.child[i].open = false;
+            }
           } else {
             json.child[i].open = true;
           }
@@ -360,11 +361,15 @@ var Qtree = function () {
   }, {
     key: 'openBranch',
     value: function openBranch(id) {
+      var openUp = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
       if (id == 0) return;
       var branchData = this.container.find('.branch_' + id).data('treeData');
       this.container.find('.children_' + id).removeClass('QTree-hide');
       this.syncData(id, { open: true });
-      this.openBranch(branchData.pid);
+      if (openUp) {
+        this.openBranch(branchData.pid);
+      }
     }
 
     //关闭分支
@@ -449,9 +454,10 @@ var Qtree = function () {
     key: 'removeBranch',
     value: function removeBranch(id) {
       var $branchDom = this.container.find('.container_' + id);
+      var pid = this.container.find('.branch_' + id).data('treeData').pid;
       if (!$branchDom.length) return;
       $branchDom.remove();
-      this.checkSwitch(id, 'del');
+      this.checkSwitch(pid, 'del');
     }
 
     //  检查分支是否有子分支，返回true或false
@@ -480,7 +486,7 @@ var Qtree = function () {
 
       var branchContainer = this.container.find('.children_' + pid);
       // 设置sortID
-      var parentSortID = this.container.find('.branch_' + pid).length ? this.container.find('.branch_' + pid).data('treeData').sortID : '';
+      var parentSortID = this.container.find('.branch_' + pid).length ? this.container.find('.branch_' + pid).data('treeData').sortID : '0001';
       var sortIndex = branchContainer.children.length + 1;
       data.sortID = parentSortID + (sortIndex * 1 < 10 ? "000" + sortIndex : sortIndex * 1 > 100 ? "00" + sortIndex : sortIndex * 1 > 1000 ? sortIndex : '0' + sortIndex);
       //设置open
@@ -499,16 +505,17 @@ var Qtree = function () {
   }, {
     key: 'checkSwitch',
     value: function checkSwitch(id, action) {
+      if (!this.container.find('.branch_' + id).length && id == 0) return; //在删除所有节点的最后一个时不需要检查
       switch (action) {
         case 'del':
-          var pid = this.container.find('.branch_' + id).data('treeData').pid;
-          var branchP = this.container.find('.branch_' + pid);
+          // let pid = this.container.find(`.branch_${id}`).data('treeData').pid
+          var branchP = this.container.find('.branch_' + id);
           if (!this.checkChlidren(id) && branchP.find('.switch').length) {
             //无子节点有开关
-            var emptySpan = this.createEmptySpan('000100010001');
+            var emptySpan = this.createEmptySpan(1, true);
             branchP.find('.switch').remove().end().prepend(emptySpan);
 
-            this.container.find('.children_' + pid).addClass('QTree-hide');
+            this.container.find('.children_' + id).addClass('QTree-hide');
           }
           break;
         case 'add':
@@ -601,6 +608,13 @@ var Qtree = function () {
       newParentBranch_children.append(cloneMoveBranch);
       this.checkSwitch(oldPid, 'del');
       this.checkSwitch(newpid, 'add');
+    }
+  }, {
+    key: 'closeAllBranch',
+    value: function closeAllBranch() {
+      this.container.find('.children_0 .QTree-branch-container').each(function (i, v) {
+        $(v).find('.QTree-children-container').addClass('QTree-hide');
+      });
     }
   }]);
 

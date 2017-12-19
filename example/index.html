@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>QTree</title>
   <link rel="stylesheet" href="./styles/asset/bootstrap.min.css">
-  <link rel="stylesheet" href="./styles/asset/monokai.css">
+  <link rel="stylesheet" href="./styles/asset/vs2015.css">
   <link rel="stylesheet" href="../styles/QTree.css">
   <link rel="stylesheet" href="./styles/test.css">
   <!--
@@ -125,7 +125,7 @@ setting //相关配置
 var tree = new Qtree('#tree-container', mockData)
 
 //打开节点
-tree.openBranch(id);
+tree.openBranch(id,openUp=true);
 //关闭节点
 tree.closeBranch(id);
 //添加节点
@@ -151,7 +151,7 @@ tree.moveBranch(id, newpid)
 
 
 
-
+<!--编辑模态框-->
 <div class="modal fade edit-modal" tabindex="-1" role="dialog" id="treeModal" data-backdrop="static">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -196,6 +196,20 @@ tree.moveBranch(id, newpid)
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
+</div>
+<!--删除模态框-->
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" id="del-modal">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-body">
+        确定删除？
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+        <button type="button" class="btn btn-info" id="del-sure" deleteUrl="{:U('Stock/del_material')}">确定</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 

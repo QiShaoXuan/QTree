@@ -59,7 +59,7 @@ gulp.task('babel', () => {
 gulp.task('serve',['delete'], function () {
   gulp.start('babel', 'sass','js','css');
   browserSync.init({
-    port: 2017,
+    port: 2018,
     server: {
       baseDir: ['example']
     }
