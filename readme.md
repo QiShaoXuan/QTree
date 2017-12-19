@@ -1,8 +1,13 @@
+# 树状图插件Qtree.js
 
+## 运行示例
 
-## 树状图插件Qtree.js
+```javascript
+npm install 
+gulp
+```
 
-### 数据格式
+## 数据格式
 
 ```javascript
 var mockData = [
@@ -27,13 +32,13 @@ var mockData = [
 ];
 ```
 
-### 基础用法
+## 基础用法
 
 ```javascript
 var tree = new Qtree('#tree-container', mockData)
 ```
 
-### 自定义渲染内容
+## 自定义渲染内容
 
 ```javascript
 var domStr =
@@ -56,7 +61,7 @@ var tree_define = new Qtree('#tree-container-define', mockData,
   })
 ```
 
-### 配置项
+## 配置项
 
 ```javascript
 var tree = new Qtree(containerID, data, setting)
@@ -74,7 +79,7 @@ setting //相关配置
    
 ```
 
-### 方法
+## 方法
 
 1. 打开节点
 
