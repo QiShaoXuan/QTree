@@ -124,24 +124,27 @@ setting //相关配置
       <pre><code>
 var tree = new Qtree('#tree-container', mockData)
 
-//打开节点
+//  打开节点
 tree.openBranch(id,openUp=true);
-//关闭节点
+//  关闭节点
 tree.closeBranch(id);
-//添加节点
+//  添加节点
 tree.addBranch(pid, data);
-//移除节点
+//  移除节点
 tree.removeBranch(id);
-//检查节点是否有子节点
+//  检查节点是否有子节点
 tree.checkChlidren(id);
-//更新节点数据
+//  更新节点数据
 tree.updateBranch(id, editData);
-//获取节点的数据（默认全部）
+//  获取节点的数据（默认全部）
 tree.getTreeData([id])
-//移动节点
+//  移动节点
 tree.moveBranch(id, newpid);
-//关闭所有节点
+//  关闭所有节点
 tree.closeAllBranch();
+//  查找父节点
+tree.findParent(id);  // 返回 {parentDom: '父节点的dom元素', parentContainer: ‘父节点的子节点容器’}
+
       </code></pre>
     </div>
   </div>

@@ -139,4 +139,10 @@ setting //相关配置
    tree.closeAllBranch();
    ```
 
-   ​
+10. 查找父节点
+
+  ```javascript
+  tree.findParent(id);
+  ```
+
+  ​返回 {parentDom: '父节点的dom元素', parentContainer: ‘父节点的子节点容器’}
