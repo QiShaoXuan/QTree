@@ -609,12 +609,26 @@ var Qtree = function () {
       this.checkSwitch(oldPid, 'del');
       this.checkSwitch(newpid, 'add');
     }
+    //  关闭所有节点
+
   }, {
     key: 'closeAllBranch',
     value: function closeAllBranch() {
       this.container.find('.children_0 .QTree-branch-container').each(function (i, v) {
         $(v).find('.QTree-children-container').addClass('QTree-hide');
       });
+    }
+    //  查找父节点
+
+  }, {
+    key: 'findParent',
+    value: function findParent(id) {
+      var child = this.container.find('.branch_' + id);
+      var pid = child.data('treeData').pid;
+      var parent = this.container.find('.branch_' + pid);
+      var parentContainer = this.container.find('.children_' + pid);
+
+      return { parentDom: parent, parentContainer: parentContainer };
     }
   }]);
 

@@ -530,10 +530,20 @@ class Qtree {
     this.checkSwitch(oldPid, 'del');
     this.checkSwitch(newpid, 'add')
   }
+//  关闭所有节点
   closeAllBranch(){
     this.container.find('.children_0 .QTree-branch-container').each((i,v) => {
       $(v).find('.QTree-children-container').addClass('QTree-hide')
     })
+  }
+//  查找父节点
+  findParent(id){
+    let child = this.container.find(`.branch_${id}`);
+    let pid = child.data('treeData').pid;
+    let parent = this.container.find(`.branch_${pid}`);
+    let parentContainer = this.container.find(`.children_${pid}`)
+
+    return {parentDom:parent,parentContainer:parentContainer}
   }
 }
 
