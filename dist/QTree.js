@@ -18,7 +18,8 @@ var Qtree = function () {
     var originSetting = {
       branchFormatter: '<div class="QTree-branch">\n                          <span class="tree-content name" name></span>\n                        </div>',
       renderData: ['name'],
-      openBranch: 0
+      openBranch: 0,
+      needLine: true
       //   <div class="QTree-branch">
       //   <span class="tree-content name" name></span>
       // <div class="edit-container"><span class="btn edit-btn">编辑</span></div>
@@ -56,7 +57,12 @@ var Qtree = function () {
         return v.id == 0;
       });
       if (!ancestor) {
-        var rootNode = { id: '0', pid: '', name: "root", open: true };
+        var rootNode = {
+          id: '0',
+          pid: '',
+          name: "root",
+          open: true
+        };
         this.nodeData.splice(0, 0, rootNode);
       }
       //设置初始化时需要打开的分支
@@ -104,7 +110,11 @@ var Qtree = function () {
         });
 
         arr.push(id);
-        return this.findOpenBranch(id, child.pid, arr);
+        if (child) {
+          return this.findOpenBranch(id, child.pid, arr);
+        } else {
+          return;
+        }
       }
     }
 
@@ -190,7 +200,8 @@ var Qtree = function () {
           frag.find('.container_' + v.id).append(that.createChildrenContainer(v.id, v.open));
           // }
         } else {
-          frag.append(that.createChildrenContainer(v.id, v.open));
+          //创建最外层的容器，需要传入isFirst来判断不添加左边的线条
+          frag.append(that.createChildrenContainer(v.id, v.open, true));
         }
       });
 
@@ -201,8 +212,9 @@ var Qtree = function () {
 
   }, {
     key: 'createChildrenContainer',
-    value: function createChildrenContainer(pid, isopen) {
-      var container = '<div class="QTree-children-container children_' + pid + ' ' + (isopen ? '' : 'QTree-hide') + '"></div>';
+    value: function createChildrenContainer(pid, isopen, isFirst) {
+      var needLine = this.setting.needLine && !isFirst ? ' Qtree-line' : '';
+      var container = '<ul class="QTree-children-container children_' + pid + ' ' + (isopen ? '' : 'QTree-hide') + needLine + '"></ul>';
       return container;
     }
 
@@ -214,7 +226,7 @@ var Qtree = function () {
       var branch = $(this.setting.branchFormatter);
       //在dom上绑定对应的数据
       branch.data('treeData', branchData);
-      var emptySpan = this.createEmptySpan(branchData.sortID);
+      var emptySpan = this.setting.needLine ? '' : this.createEmptySpan(branchData.sortID);
 
       //处理顺序
       //1.加载对应的数据
@@ -232,14 +244,13 @@ var Qtree = function () {
       branch.prepend(emptySpan);
 
       //4.添加id
-      // branch.attr('id', branchData.id);
       branch.addClass('branch_' + branchData.id);
       //分支需要添加QTree-branch类名
       if (!branch.hasClass('QTree-branch')) {
         branch.addClass('QTree-branch');
       }
 
-      var branchContainer = $('<div class="QTree-branch-container container_' + branchData.id + '"></div>');
+      var branchContainer = $('<li class="QTree-branch-container container_' + branchData.id + (this.setting.needLine ? ' Qtree-line' : '') + '"></li>');
       branchContainer.append(branch);
       return branchContainer;
     }
@@ -361,15 +372,11 @@ var Qtree = function () {
   }, {
     key: 'openBranch',
     value: function openBranch(id) {
-      var openUp = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-
       if (id == 0) return;
       var branchData = this.container.find('.branch_' + id).data('treeData');
       this.container.find('.children_' + id).removeClass('QTree-hide');
       this.syncData(id, { open: true });
-      if (openUp) {
-        this.openBranch(branchData.pid);
-      }
+      this.openBranch(branchData.pid);
     }
 
     //关闭分支
@@ -512,7 +519,7 @@ var Qtree = function () {
           var branchP = this.container.find('.branch_' + id);
           if (!this.checkChlidren(id) && branchP.find('.switch').length) {
             //无子节点有开关
-            var emptySpan = this.createEmptySpan(1, true);
+            var emptySpan = this.setting.needLine ? '' : this.createEmptySpan(1, true);
             branchP.find('.switch').remove().end().prepend(emptySpan);
 
             this.container.find('.children_' + id).addClass('QTree-hide');
@@ -520,14 +527,16 @@ var Qtree = function () {
           break;
         case 'add':
           var branch = this.container.find('.branch_' + id);
-          // if (!this.checkChlidren(id) && !branch.find('.switch').length) {
-          //   let switchString = this.createSwitchString(false);
-          //   branch.find('.empty-span').last().after(switchString).remove();
-          // }
           if (this.checkChlidren(id) && !branch.find('.switch').length) {
             //有子节点无开关
             var switchString = this.createSwitchString(false);
+            //这里可能需要判断是否为第一层级或者是否为有指示线，暂未写完
             branch.find('.empty-span').last().after(switchString).remove();
+            // if(this.setting.needLine){
+            //   branch.prepend(switchString)
+            // }else{
+            //   branch.find('.empty-span').last().after(switchString).remove();
+            // }
           }
           break;
       }
@@ -593,10 +602,10 @@ var Qtree = function () {
         });
       }
       //层级增加
-      if (d_value <= 0) {
-        var emptySpan = this.createEmptySpan(Math.abs(d_value + 1), true);
-        cloneMoveBranch.find('.QTree-branch').prepend(emptySpan);
-      }
+      if (d_value <= 0) {}
+      // let emptySpan = this.createEmptySpan(Math.abs(d_value + 1), true)
+      // cloneMoveBranch.find('.QTree-branch').prepend(emptySpan)
+
 
       //绑定数据
       moveData.forEach(function (v) {
@@ -609,6 +618,7 @@ var Qtree = function () {
       this.checkSwitch(oldPid, 'del');
       this.checkSwitch(newpid, 'add');
     }
+
     //  关闭所有节点
 
   }, {
@@ -618,7 +628,8 @@ var Qtree = function () {
         $(v).find('.QTree-children-container').addClass('QTree-hide');
       });
     }
-    //  查找父节点
+
+    //查找父节点
 
   }, {
     key: 'findParent',
@@ -628,7 +639,10 @@ var Qtree = function () {
       var parent = this.container.find('.branch_' + pid);
       var parentContainer = this.container.find('.children_' + pid);
 
-      return { parentDom: parent, parentContainer: parentContainer };
+      return {
+        parentDom: parent,
+        parentContainer: parentContainer
+      };
     }
   }]);
 
