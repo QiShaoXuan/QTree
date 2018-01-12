@@ -1,5 +1,8 @@
+$line-color:#ddd;
+$line-height:30px;
+$empty-height:20px;
 .QTree-branch{
-  height:30px;
+  height:$line-height;
   display: flex;
   justify-content: flex-start;
   align-items: center;
@@ -8,13 +11,14 @@
   position: relative;
 
   .empty-span{
-    width:20px;
-    height:20px;
+    width:$empty-height;
+    height:$empty-height;
+    position: relative;
   }
 
   .switch{
-    width:14px;
-    height:14px;
+    width:$line-height/2;
+    height:$line-height/2;
     margin:0 3px;
     background-size:cover;
     background-position: center center;
@@ -67,4 +71,53 @@
 }
 .QTree-hide{
   display: none;
+}
+li.QTree-branch-container{
+  list-style: none;
+}
+ul.QTree-children-container{
+  padding:0;
+}
+.Qtree-line{
+  position:relative;
+  padding-left:19px;
+}
+.children_0>.Qtree-line{
+  padding-left:0;
+}
+.Qtree-line.QTree-branch-container:before{
+  content:'';
+  width:1px;
+  height:100%;
+  background: $line-color;
+  position: absolute;
+  left:9px;
+  top:0;
+}
+.Qtree-line.QTree-branch-container:after{
+  content:'';
+  height:1px;
+  width:9px;
+  background: $line-color;
+  position: absolute;
+  top:$line-height/2;
+  left:10px;
+}
+.QTree-children-container .Qtree-line:last-of-type:before{
+  height:$line-height/2;
+}
+.children_0>.Qtree-line:before{
+  display: none;
+}
+.children_0>.Qtree-line:after{
+  display: none;
+}
+.empty-span:after{
+  content:'';
+  height:1px;
+  width:$line-height/2;
+  background: $line-color;
+  position: absolute;
+  left:0;
+  top:$empty-height/2-0.5;
 }
