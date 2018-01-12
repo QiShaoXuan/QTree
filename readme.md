@@ -75,9 +75,16 @@ setting //相关配置
   branchFormatter: '<div class="QTree-branch"><span class="tree-content name" name></span></div>',
   renderData: ['name'],
   openBranch: 0,
+  needLine:true
 }
    
 ```
+
+
+
+## 说明
+
+节点的相关数据存放在该节点`.QTree-branch`下的`treeData`,可通过jquery`.data('treeData')`获取
 
 ## 方法
 
