@@ -8,10 +8,11 @@
   position: relative; }
   .QTree-branch .empty-span {
     width: 20px;
-    height: 20px; }
+    height: 20px;
+    position: relative; }
   .QTree-branch .switch {
-    width: 14px;
-    height: 14px;
+    width: 15px;
+    height: 15px;
     margin: 0 3px;
     background-size: cover;
     background-position: center center;
@@ -60,3 +61,52 @@
 
 .QTree-hide {
   display: none; }
+
+li.QTree-branch-container {
+  list-style: none; }
+
+ul.QTree-children-container {
+  padding: 0; }
+
+.Qtree-line {
+  position: relative;
+  padding-left: 19px; }
+
+.children_0 > .Qtree-line {
+  padding-left: 0; }
+
+.Qtree-line.QTree-branch-container:before {
+  content: '';
+  width: 1px;
+  height: 100%;
+  background: #ddd;
+  position: absolute;
+  left: 9px;
+  top: 0; }
+
+.Qtree-line.QTree-branch-container:after {
+  content: '';
+  height: 1px;
+  width: 9px;
+  background: #ddd;
+  position: absolute;
+  top: 15px;
+  left: 10px; }
+
+.QTree-children-container .Qtree-line:last-of-type:before {
+  height: 15px; }
+
+.children_0 > .Qtree-line:before {
+  display: none; }
+
+.children_0 > .Qtree-line:after {
+  display: none; }
+
+.empty-span:after {
+  content: '';
+  height: 1px;
+  width: 15px;
+  background: #ddd;
+  position: absolute;
+  left: 0;
+  top: 9.5px; }
