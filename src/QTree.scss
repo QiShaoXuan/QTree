@@ -87,7 +87,8 @@ ul.QTree-children-container{
     background: $line-color;
     position: absolute;
     left:0;
-    top:$empty-height/2 - 0.5;
+    top:50%;
+    transform: translateY(-50%);
   }
 }
 .children_0>.Qtree-line{
@@ -108,7 +109,8 @@ ul.QTree-children-container{
   width:9px;
   background: $line-color;
   position: absolute;
-  top:$line-height/2;
+  top:50%;
+  transform: translateY(-50%);
   left:10px;
 }
 .QTree-children-container .Qtree-line:last-of-type:before{
