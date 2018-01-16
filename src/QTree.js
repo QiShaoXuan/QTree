@@ -99,7 +99,6 @@ class Qtree {
       } else {
         return;
       }
-
     }
   }
 
