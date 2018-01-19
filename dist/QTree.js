@@ -10,7 +10,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 //             |
 //             |-- div(class=QTree-branch , id=x)
 //             |-- ul(class=QTree-children-container , id=children_x)
-
 var Qtree = function () {
   function Qtree(container, treeData) {
     var setting = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
@@ -23,8 +22,8 @@ var Qtree = function () {
       openBranch: [], //初始化时默认打开的节点，数组存放id
       needLine: true, //是否需要指示线
       isTile: true, //数据是否为平铺
-      openAnimate: true //是否要展开动画
-
+      openAnimate: true, //是否要展开动画
+      openAnimateDuration: 150
 
       //  如果要自定义渲染的数据，需要在renderData中添加渲染的属性值，并且在branchFormatter中对应的标签内添加相应的值
     };this.setting = Object.assign(originSetting, setting);
@@ -105,6 +104,10 @@ var Qtree = function () {
   }, {
     key: 'createBranch',
     value: function createBranch(data) {
+      //检查是否有children属性，没有需添加一个空的
+      if (!('children' in data)) {
+        data.children = [];
+      }
       var needLine = this.setting.needLine ? ' Qtree-line' : '';
       var $branch = $('<li class="QTree-branch-container' + needLine + '"><ul class="QTree-children-container" style="display: none"></ul></li>');
       $branch.find('ul').append(this.setChildren(data.children));
@@ -122,6 +125,10 @@ var Qtree = function () {
       if (!formatterBranch.hasClass('QTree-branch')) {
         formatterBranch.addClass('QTree-branch');
       }
+      //节点添加 branch_id 类名，方便查找
+      formatterBranch.addClass('branch_' + data.id);
+      //将数据绑定在dom上
+      formatterBranch.data('treeData', data);
       //渲染数据
       this.loadBranchData(formatterBranch, data);
       //添加开关
@@ -165,6 +172,7 @@ var Qtree = function () {
     value: function setChildren(childrenArr) {
       var _this5 = this;
 
+      if (!childrenArr.length) return '';
       var frag = $(document.createDocumentFragment());
       childrenArr.forEach(function (v) {
         frag.append(_this5.createBranch(v));
@@ -178,7 +186,9 @@ var Qtree = function () {
     key: 'initEvent',
     value: function initEvent() {
       this.setSwitchEvent();
+      this.stopPropagation();
     }
+
     //  设置开关事件
 
   }, {
@@ -186,18 +196,194 @@ var Qtree = function () {
     value: function setSwitchEvent() {
       var that = this;
       this.container.on('click', '.switch', function (e) {
-        e.stopPropagation();
         var $this = $(this);
         var flag = $this.hasClass('plus-btn');
         var $ul = $this.parents('.QTree-branch').siblings('.QTree-children-container');
         if (flag) {
           $this.removeClass('plus-btn').addClass('minus-btn');
-          that.setting.openAnimate ? $ul.slideDown(150) : $ul.show();
+          that.setting.openAnimate ? $ul.slideDown(that.setting.openAnimateDuration) : $ul.show();
         } else {
           $this.removeClass('minus-btn').addClass('plus-btn');
-          that.setting.openAnimate ? $ul.slideUp(150) : $ul.hide();
+          that.setting.openAnimate ? $ul.slideUp(that.setting.openAnimateDuration) : $ul.hide();
         }
       });
+    }
+  }, {
+    key: 'stopPropagation',
+    value: function stopPropagation() {
+      this.container.on('click', '.QTree-branch', function (e) {
+        e.target.classList.contains('');
+        console.log(e);
+      });
+    }
+
+    // ----------------------------------------------- 方法 ----------------------------------------------
+    //  打开节点
+
+  }, {
+    key: 'openBranch',
+    value: function openBranch(id) {
+      var openUp = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+
+      if (id == 0) return;
+      var $branch = this.container.find('.branch_' + id);
+      var $ul = $branch.siblings('.QTree-children-container');
+
+      if ($ul.children().length && $ul.is(':hidden')) {
+        //打开开关
+        $branch.find('.switch').addClass('minus-btn').removeClass('plus-btn');
+        //菜单收回
+        this.setting.openAnimate ? $ul.slideDown(this.setting.openAnimateDuration) : $ul.show();
+        if (openUp) {
+          this.openBranch($branch.data('treeData').pid, true);
+        }
+      }
+    }
+
+    //  关闭节点
+
+  }, {
+    key: 'closeBranch',
+    value: function closeBranch(id) {
+      var openDown = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+      var $branch = this.container.find('.branch_' + id);
+      var $ul = $branch.siblings('.QTree-children-container');
+
+      if ($ul.children().length && !$ul.is(':hidden')) {
+        //关闭开关
+        $branch.find('.switch').removeClass('minus-btn').addClass('plus-btn');
+        //菜单下拉
+        this.setting.openAnimate ? $ul.slideUp(this.setting.openAnimateDuration) : $ul.hide();
+        if (openDown) {
+          var treeData = this.container.find('.branch_' + id).data('treeData');
+          var that = this;
+          treeData.children.forEach(function (v) {
+            that.closeBranch(v.id, true);
+          });
+        }
+      }
+    }
+
+    //  添加节点
+
+  }, {
+    key: 'addBranch',
+    value: function addBranch(pid, data) {
+      //  检查是否有id和pid
+      if (!('id' in data) || !('pid' in data)) return;
+      var newBranch = this.createBranch(data);
+      var parentUl = this.container.find('.branch_' + pid).siblings('.QTree-children-container');
+      parentUl.append(newBranch);
+    }
+
+    //  移除节点
+
+  }, {
+    key: 'removeBranch',
+    value: function removeBranch(id) {
+      var $branchLi = this.container.find('.branch_' + id).parent();
+      $branchLi.remove();
+    }
+
+    //  检查节点是否有子节点
+
+  }, {
+    key: 'checkChlidren',
+    value: function checkChlidren(id) {
+      var $ul = this.container.find('.branch_' + id).siblings('.QTree-children-container');
+      return $ul.children().length ? true : false;
+    }
+
+    //  更新节点数据
+
+  }, {
+    key: 'updateBranch',
+    value: function updateBranch(id, data) {
+      var $branch = this.container.find('.branch_' + id);
+      var oldData = $branch.data('treeData');
+      var newData = Object.assign(oldData, data);
+
+      $branch.data('treeData', newData);
+      this.loadBranchData($branch, data);
+    }
+
+    //  获取节点的数据（默认全部）
+
+  }, {
+    key: 'getTreeData',
+    value: function getTreeData(id) {
+      //  如果有id返回该节点的数据
+      if (id) return this.container.find('.branch_' + id).data('treeData');
+      //  没有传id则返回全部的
+      var allData = [];
+      this.container.find('.QTree-branch').each(function (i, v) {
+        allData.push($(v).data('treeData'));
+      });
+      return allData;
+    }
+
+    //  移动节点
+
+  }, {
+    key: 'moveBranch',
+    value: function moveBranch(moveId, newpid) {
+      var $cloneBranch = this.container.find('.branch_' + moveId).parent().clone(true);
+      var $ul = this.container.find('.branch_' + newpid).siblings('.QTree-children-container');
+      this.removeBranch(moveId);
+      $ul.append($cloneBranch);
+    }
+
+    //  关闭所有节点
+
+  }, {
+    key: 'closeAllBranch',
+    value: function closeAllBranch() {
+      var _this6 = this;
+
+      this.container.find('.QTree-branch').each(function (i, v) {
+        var $branch = $(v);
+        var $ul = $(v).siblings('.QTree-children-container');
+        if ($ul.children().length && !$ul.is(':hidden')) {
+          //关闭开关
+          $branch.find('.switch').removeClass('minus-btn').addClass('plus-btn');
+          //菜单下拉
+          _this6.setting.openAnimate ? $ul.slideUp(_this6.setting.openAnimateDuration) : $ul.hide();
+        }
+      });
+    }
+
+    //  打开所有节点
+
+  }, {
+    key: 'openAllBranch',
+    value: function openAllBranch() {
+      var _this7 = this;
+
+      this.container.find('.QTree-branch').each(function (i, v) {
+        var $branch = $(v);
+        var $ul = $(v).siblings('.QTree-children-container');
+        if ($ul.children().length && $ul.is(':hidden')) {
+          //关闭开关
+          $branch.find('.switch').addClass('minus-btn').removeClass('plus-btn');
+          //菜单下拉
+          _this7.setting.openAnimate ? $ul.slideDown(_this7.setting.openAnimateDuration) : $ul.show();
+        }
+      });
+    }
+
+    //  查找父节点
+
+  }, {
+    key: 'findParent',
+    value: function findParent(id) {
+      var $branch = this.container.find('.branch_' + id);
+      var branchData = $branch.data('treeData');
+
+      return {
+        $parentDom: this.container.find('.branch_' + branchData.pid),
+        $parentContainer: $branch.parent().parent()
+      };
     }
   }]);
 

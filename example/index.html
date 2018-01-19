@@ -128,7 +128,7 @@ var tree = new Qtree('#tree-container', mockData)
 //  打开节点
 tree.openBranch(id,openUp=true);
 //  关闭节点
-tree.closeBranch(id);
+tree.closeBranch(id,openDown=false);
 //  添加节点
 tree.addBranch(pid, data);
 //  移除节点
@@ -143,9 +143,10 @@ tree.getTreeData([id])
 tree.moveBranch(id, newpid);
 //  关闭所有节点
 tree.closeAllBranch();
+//  打开所有节点
+openAllBranch()
 //  查找父节点
-tree.findParent(id);  // 返回 {parentDom: '父节点的dom元素', parentContainer: ‘父节点的子节点容器’}
-
+tree.findParent(id);  // 返回 {parentDom: '父节点jquery对象', parentContainer: ‘父节点的子节点容器’}
       </code></pre>
     </div>
   </div>

@@ -14,6 +14,7 @@
 <body style="height:100%;">
 <div class="left panel panel-default col-xs-12" style="height:100%;">
   <div class="tree-container" id="tree-container" style="width:800px;margin:0 auto;"></div>
+  <div class="red-btn" style="width:100px;height:100px;background: red"></div>
 </div>
 </body>
 <script src="scripts/asset/jquery.min.js"></script>
@@ -45,5 +46,13 @@
                           <span class="tree-content name" name></span>
                         </div>`,
   });
+
+  $('.red-btn').on('click',function () {
+    tree. openAllBranch()
+  })
+
+  $('#tree-container').on('click','.QTree-branch',function () {
+    console.log($(this),$(this).data('treeData'))
+  })
 </script>
 </html>
