@@ -18,6 +18,7 @@
 </body>
 <script src="scripts/asset/jquery.min.js"></script>
 <script src="scripts/QTree.build.js"></script>
+
 <script>
   var mockData = [
     {id: "1", pid: "0", name: "节点 1"},
@@ -39,6 +40,10 @@
     {id: "32", pid: "3", index: 1, name: "节点 3-2", value_1: '4', value_2: '3'},
     {id: "33", pid: "3", index: 1, name: "节点 3-3", value_1: '4', value_2: '3'},
   ];
-  let tree = new Qtree('#tree-container', mockData);
+  let tree = new Qtree('#tree-container', mockData,{
+    branchFormatter: `<div class="QTree-branch">
+                          <span class="tree-content name" name></span>
+                        </div>`,
+  });
 </script>
 </html>
