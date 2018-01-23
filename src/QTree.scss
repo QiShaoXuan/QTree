@@ -71,6 +71,9 @@ $empty-height:20px;
 .QTree-hide{
   display: none;
 }
+.QTree>li.QTree-branch-container{
+  padding:0;
+}
 li.QTree-branch-container{
   list-style: none;
   padding-left:20px;
@@ -88,7 +91,7 @@ ul.QTree-children-container{
     background: $line-color;
     position: absolute;
     left:-1px;
-    top:$empty-height/2 - 0.5;
+    top:$empty-height/2 - 1.5;
   }
 }
 .Qtree-line.QTree-branch-container:before{
@@ -117,5 +120,8 @@ ul.QTree-children-container{
   display: none;
 }
 .QTree>.Qtree-line:after{
+  display: none;
+}
+.QTree>.Qtree-line .empty-span:after{
   display: none;
 }
