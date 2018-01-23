@@ -20,7 +20,7 @@ var Qtree = function () {
       branchFormatter: '<div class="QTree-branch">\n                          <span class="tree-content" name></span>\n                        </div>',
       renderData: ['name'], //渲染的数据名称，同时需要在标签中设置
       openBranch: [], //初始化时默认打开的节点，数组存放id
-      needLine: true, //是否需要指示线
+      needLine: false, //是否需要指示线
       isTile: true, //数据是否为平铺
       openAnimate: true, //是否要展开动画
       openAnimateDuration: 150
@@ -109,9 +109,16 @@ var Qtree = function () {
         data.children = [];
       }
       var needLine = this.setting.needLine ? ' Qtree-line' : '';
-      var $branch = $('<li class="QTree-branch-container' + needLine + '"><ul class="QTree-children-container" style="display: none"></ul></li>');
+      //检查是否有需要初始化时打开的节点
+      var open = false;
+      if (this.setting.openBranch.length) {
+        open = this.setting.openBranch.find(function (v) {
+          return v == data.id;
+        });
+      }
+      var $branch = $('<li class="QTree-branch-container' + needLine + '"><ul class="QTree-children-container" style="display: ' + (open ? 'block' : 'none') + '"></ul></li>');
       $branch.find('ul').append(this.setChildren(data.children));
-      $branch.prepend(this.createFormatter(data));
+      $branch.prepend(this.createFormatter(data, open));
       return $branch;
     }
 
@@ -119,7 +126,7 @@ var Qtree = function () {
 
   }, {
     key: 'createFormatter',
-    value: function createFormatter(data) {
+    value: function createFormatter(data, open) {
       var formatterBranch = $(this.setting.branchFormatter);
       //节点必须有.Qtree-branch类名
       if (!formatterBranch.hasClass('QTree-branch')) {
@@ -132,7 +139,7 @@ var Qtree = function () {
       //渲染数据
       this.loadBranchData(formatterBranch, data);
       //添加开关
-      formatterBranch.prepend(this.setSwitch(data));
+      formatterBranch.prepend(this.setSwitch(data, open));
       return formatterBranch;
     }
 
@@ -140,7 +147,8 @@ var Qtree = function () {
 
   }, {
     key: 'setSwitch',
-    value: function setSwitch(data) {
+    value: function setSwitch(data, open) {
+      if (open && data.children.length) return '<span class="switch minus-btn"></span>';
       return data.children.length ? '<span class="switch plus-btn"></span>' : '<span class="empty-span"></span>';
     }
 
@@ -186,7 +194,6 @@ var Qtree = function () {
     key: 'initEvent',
     value: function initEvent() {
       this.setSwitchEvent();
-      this.stopPropagation();
     }
 
     //  设置开关事件
@@ -196,6 +203,7 @@ var Qtree = function () {
     value: function setSwitchEvent() {
       var that = this;
       this.container.on('click', '.switch', function (e) {
+        e.stopPropagation();
         var $this = $(this);
         var flag = $this.hasClass('plus-btn');
         var $ul = $this.parents('.QTree-branch').siblings('.QTree-children-container');
@@ -206,14 +214,6 @@ var Qtree = function () {
           $this.removeClass('minus-btn').addClass('plus-btn');
           that.setting.openAnimate ? $ul.slideUp(that.setting.openAnimateDuration) : $ul.hide();
         }
-      });
-    }
-  }, {
-    key: 'stopPropagation',
-    value: function stopPropagation() {
-      this.container.on('click', '.QTree-branch', function (e) {
-        e.target.classList.contains('');
-        console.log(e);
       });
     }
 
@@ -272,8 +272,20 @@ var Qtree = function () {
     value: function addBranch(pid, data) {
       //  检查是否有id和pid
       if (!('id' in data) || !('pid' in data)) return;
+
       var newBranch = this.createBranch(data);
-      var parentUl = this.container.find('.branch_' + pid).siblings('.QTree-children-container');
+      //  如果是在根节点上添加
+      if (pid == 0) {
+        return this.container.find('.QTree').append(newBranch);
+      }
+
+      var $parentBranch = this.container.find('.branch_' + pid);
+      var parentUl = $parentBranch.siblings('.QTree-children-container');
+      //  检查被添加节点是否有子节点 判断是否需要增加开关
+      if (!parentUl.children().length) {
+        $parentBranch.prepend('<span class="switch plus-btn"></span>').find('.empty-span').remove();
+      }
+      //添加新的子节点
       parentUl.append(newBranch);
     }
 
@@ -282,8 +294,17 @@ var Qtree = function () {
   }, {
     key: 'removeBranch',
     value: function removeBranch(id) {
-      var $branchLi = this.container.find('.branch_' + id).parent();
+      var $branch = this.container.find('.branch_' + id);
+      var $branchLi = $branch.parent();
+      var data = $branch.data('treeData');
+
+      //  删除该节点
       $branchLi.remove();
+      //  检查该节点是否为父节点的唯一节点 判断是否需要删除开关
+      if (!this.checkChlidren(data.pid)) {
+        var $parentBranch = this.container.find('.branch_' + data.pid);
+        $parentBranch.prepend('<span class="empty-span"></span>').find('.switch').remove();
+      }
     }
 
     //  检查节点是否有子节点
