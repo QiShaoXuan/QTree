@@ -20,7 +20,7 @@ var Qtree = function () {
       branchFormatter: '<div class="QTree-branch">\n                          <span class="tree-content" name></span>\n                        </div>',
       renderData: ['name'], //渲染的数据名称，同时需要在标签中设置
       openBranch: [], //初始化时默认打开的节点，数组存放id
-      needLine: false, //是否需要指示线
+      needLine: true, //是否需要指示线
       isTile: true, //数据是否为平铺
       openAnimate: true, //是否要展开动画
       openAnimateDuration: 150
